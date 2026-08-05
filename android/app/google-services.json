@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1074976967601",
+    "project_id": "diabetes-tracking-system-bca",
+    "storage_bucket": "diabetes-tracking-system-bca.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1074976967601:android:753636caf301850b5f4b90",
+        "android_client_info": {
+          "package_name": "com.bcafinal.diabetes_tracking_system"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgPEZsKVMvBMdrMKGo87U8QAC17sW9rik"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
