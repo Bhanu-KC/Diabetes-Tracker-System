@@ -1,11 +1,3 @@
-/// Root widget of the Diabetes Tracking System application.
-///
-/// This file builds the [MaterialApp] that configures the app-wide theme
-/// and registers every named route. Screens are navigated to using
-/// `Navigator.pushNamed(context, '/route-name')`.
-
-library;
-
 import 'package:flutter/material.dart';
 import 'theme/app_theme.dart';
 import 'screens/splash_screen.dart';
