@@ -1,5 +1,4 @@
-/// A medication added by the user, saved in the medication_records table.
-library;
+// A medication added by the user, saved in the medication_records table.
 
 import 'package:floor/floor.dart';
 

@@ -1,6 +1,5 @@
-/// A card with one big highlighted number (like today's blood sugar).
+// A card with one big highlighted number (like today's blood sugar).
 
-library;
 
 import 'package:flutter/material.dart';
 

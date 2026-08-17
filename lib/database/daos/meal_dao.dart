@@ -1,5 +1,4 @@
-/// All SQL queries for the meal_records table.
-library;
+// All SQL queries for the meal_records table.
 
 import 'package:floor/floor.dart';
 import '../entities/meal_entity.dart';

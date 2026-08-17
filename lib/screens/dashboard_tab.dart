@@ -1,6 +1,5 @@
-/// Dashboard tab showing the user's health summary at a glance.
+// Dashboard tab showing the user's health summary at a glance.
 
-library;
 
 import 'dart:async';
 
@@ -237,31 +236,37 @@ class _DashboardTabState extends State<DashboardTab> {
     return when;
   }
 
-  /// The next reminder across all medications and insulin records.
+  // The next reminder across all medications and insulin records.
   NextReminderInfo? get _nextReminder {
     final now = DateTime.now();
-    ({DateTime when, String type, String name})? best;
+    DateTime? bestWhen;
+    String? bestType;
+    String? bestName;
     for (final m in _medications) {
       if (!m.reminderEnabled) continue; // skip disabled reminders
       final when = _nextOccurrence(m.reminderTime, now);
-      if (when != null && (best == null || when.isBefore(best.when))) {
-        best = (when: when, type: 'Medication', name: m.name);
+      if (when != null && (bestWhen == null || when.isBefore(bestWhen))) {
+        bestWhen = when;
+        bestType = 'Medication';
+        bestName = m.name;
       }
     }
     for (final i in _insulinRecords) {
       if (!i.reminderEnabled) continue; // skip disabled reminders
       final when = _nextOccurrence(i.time, now);
-      if (when != null && (best == null || when.isBefore(best.when))) {
-        best = (when: when, type: 'Insulin', name: i.name);
+      if (when != null && (bestWhen == null || when.isBefore(bestWhen))) {
+        bestWhen = when;
+        bestType = 'Insulin';
+        bestName = i.name;
       }
     }
-    if (best == null) return null;
-    return (
-      type: best.type,
-      name: best.name,
-      time: _formatTime(
-        '${best.when.hour.toString().padLeft(2, '0')}:'
-        '${best.when.minute.toString().padLeft(2, '0')}',
+    if (bestWhen == null) return null;
+    return NextReminderInfo(
+      bestType!,
+      bestName!,
+      _formatTime(
+        '${bestWhen.hour.toString().padLeft(2, '0')}:'
+        '${bestWhen.minute.toString().padLeft(2, '0')}',
       ),
     );
   }
@@ -324,10 +329,11 @@ class _DashboardTabState extends State<DashboardTab> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                // Next reminder across medications and insulin.
+                // Next upcoming reminder across medications and insulin.
                 NextReminderCard(
                   reminder: _nextReminder,
                 ),
+
                 const SizedBox(height: 12),
                 // Medication and insulin reminder cards, stacked.
                 ReminderCard(
@@ -344,7 +350,7 @@ class _DashboardTabState extends State<DashboardTab> {
                             : 'Off'),
                   color: AppColors.softGreen,
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
                 ReminderCard(
                   icon: Icons.biotech_outlined,
                   title: 'Insulin',
@@ -365,7 +371,7 @@ class _DashboardTabState extends State<DashboardTab> {
                   'Quick Actions',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 // Quick actions: blood sugar and medication.
                 Row(
                   children: [

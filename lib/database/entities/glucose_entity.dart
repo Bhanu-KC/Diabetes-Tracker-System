@@ -1,5 +1,4 @@
-/// A blood sugar (glucose) reading saved in the glucose_records table.
-library;
+// A blood sugar (glucose) reading saved in the glucose_records table.
 
 import 'package:floor/floor.dart';
 

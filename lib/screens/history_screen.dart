@@ -1,6 +1,5 @@
-/// History screen showing past health activity as a timeline.
+// History screen showing past health activity as a timeline.
 
-library;
 
 import 'dart:async';
 
@@ -75,6 +74,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         });
       });
     } catch (_) {
+      // just in case, mark it loaded so the spinner doesn't hang
       if (mounted) setState(() => _glucoseLoaded = true);
     }
 
@@ -131,6 +131,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     super.dispose();
   }
 
+
   /// Whether [section] is shown with the current filter.
   bool _shouldShow(String section) {
     return _selectedFilter == 'All' || _selectedFilter == section;
@@ -154,9 +155,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           IconButton(
             icon: const Icon(Icons.sort),
             onPressed: () {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Sorted by date')));
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Sorted by date')));
             },
             tooltip: 'Sort',
           ),
@@ -208,7 +207,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               }).toList(),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           Expanded(child: _buildBody(theme)),
         ],
       ),

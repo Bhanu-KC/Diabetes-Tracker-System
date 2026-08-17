@@ -1,5 +1,4 @@
-/// Handles all local notifications: reminders for meds and insulin.
-library;
+// Handles all local notifications: reminders for meds and insulin.
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

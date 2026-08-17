@@ -1,6 +1,5 @@
-/// Meal Tracker screen showing meals and calorie progress.
+// Meal Tracker screen showing meals and calorie progress.
 
-library;
 
 import 'dart:async';
 
@@ -90,10 +89,7 @@ class _MealScreenState extends State<MealScreen> {
 
   /// Opens the Add Meal screen in edit mode.
   Future<void> _openEdit(MealEntity meal) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => AddMealScreen(existing: meal)),
-    );
+    await Navigator.push(context, MaterialPageRoute(builder: (_) => AddMealScreen(existing: meal)));
   }
 
   /// Asks for confirmation, then deletes the meal.
@@ -120,6 +116,7 @@ class _MealScreenState extends State<MealScreen> {
     );
     if (confirmed != true) return;
     try {
+      // fetch the repo again, don't reuse a cached one
       final repo = await MealRepository.getInstance();
       await repo.delete(meal);
       if (!mounted) return;
@@ -148,10 +145,7 @@ class _MealScreenState extends State<MealScreen> {
       appBar: AppBar(title: const Text('Meal Tracker')),
       // Opens the Add Meal screen.
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const AddMealScreen()),
-        ),
+        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddMealScreen())),
         child: const Icon(Icons.add),
       ),
       body: _buildBody(theme),
@@ -233,12 +227,13 @@ class _MealScreenState extends State<MealScreen> {
               type,
               meals.where((m) => m.mealType == type).toList(),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
           ],
-        const SizedBox(height: 20),
+        const SizedBox(height: 24),
       ],
     );
   }
+
 
   /// Card with today's calories against the daily goal.
   Widget _calorieProgress(ThemeData theme, int consumed, int goal) {

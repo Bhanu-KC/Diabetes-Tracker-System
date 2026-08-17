@@ -1,5 +1,4 @@
-/// Middle layer between the database and the screens for insulin data.
-library;
+// Middle layer between the database and the screens for insulin data.
 
 import 'dart:async';
 import '../daos/insulin_dao.dart';

@@ -1,6 +1,5 @@
-/// Medication details screen.
+// Medication details screen.
 
-library;
 
 import 'package:flutter/material.dart';
 import 'add_medication_screen.dart';
@@ -33,6 +32,7 @@ class MedicationDetails extends StatelessWidget {
       'Nov',
       'Dec',
     ];
+    // zero pad so it reads 05 Aug instead of 5 Aug
     final padded = d.day.toString().padLeft(2, '0');
     return '$padded ${months[d.month - 1]} ${d.year}';
   }
@@ -82,7 +82,7 @@ class MedicationDetails extends StatelessWidget {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Medication deleted'),
+          content: Text('Medication deleted!'),
           backgroundColor: AppColors.softGreen,
         ),
       );
@@ -119,10 +119,7 @@ class MedicationDetails extends StatelessWidget {
                 // Header card with icon and name.
                 Card(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 24,
-                      horizontal: 20,
-                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
                     child: Column(
                       children: [
                         Container(
@@ -171,7 +168,7 @@ class MedicationDetails extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 12),
                         // One labelled row per field.
                         _detailRow(
                           theme,
@@ -206,7 +203,7 @@ class MedicationDetails extends StatelessWidget {
                                     : 'Enabled (once)')
                               : 'Disabled',
                         ),
-                        const Divider(height: 20),
+                        const Divider(height: 24),
                         _detailRow(
                           theme,
                           Icons.calendar_today,
@@ -278,6 +275,7 @@ class MedicationDetails extends StatelessWidget {
             ),
     );
   }
+
 
   /// One labelled information row (icon, label and value).
   Widget _detailRow(

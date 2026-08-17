@@ -1,6 +1,5 @@
-/// Add or edit a meal.
+// Add or edit a meal.
 
-library;
 
 import 'package:flutter/material.dart';
 import '../database/entities/meal_entity.dart';
@@ -74,11 +73,13 @@ class _AddMealScreenState extends State<AddMealScreen> {
     super.dispose();
   }
 
+
   /// Opens the date picker.
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
       context: context,
       initialDate: _date,
+      // meals from before 2020 aren't relevant
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
     );
@@ -91,8 +92,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
     setState(() => _isSaving = true);
     try {
       // Keep the original timestamp when editing.
-      final timestamp =
-          _originalTimestamp ?? DateTime.now().millisecondsSinceEpoch;
+      final timestamp = _originalTimestamp ?? DateTime.now().millisecondsSinceEpoch;
 
       final repo = await MealRepository.getInstance();
       if (_isEditing) {
@@ -245,7 +245,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 16),
               // Opens the date picker.
               InkWell(
                 onTap: _pickDate,
@@ -257,7 +257,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
                   child: Text('${_date.day}/${_date.month}/${_date.year}'),
                 ),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 12),
               // Optional notes field.
               TextFormField(
                 controller: _notesController,

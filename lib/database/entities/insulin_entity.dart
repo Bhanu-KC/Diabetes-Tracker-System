@@ -1,5 +1,4 @@
-/// An insulin dose logged by the user, saved in the insulin_records table.
-library;
+// An insulin dose logged by the user, saved in the insulin_records table.
 
 import 'package:floor/floor.dart';
 

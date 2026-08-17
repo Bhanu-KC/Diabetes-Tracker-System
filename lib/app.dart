@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'theme/app_theme.dart';
-import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/forgot_password_screen.dart';
@@ -33,11 +32,10 @@ class DiabetesApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       // So code outside the widget tree can reach the root navigator.
       navigatorKey: navigatorKey,
-      // The splash screen shows first when the app opens.
-      initialRoute: '/',
+      // App starts at the login screen.
+      initialRoute: '/login',
       routes: {
         // Auth screens.
-        '/': (context) => const SplashScreen(),
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/forgot-password': (context) => const ForgotPasswordScreen(),

@@ -1,6 +1,5 @@
-/// Add or edit a blood sugar reading.
+// Add or edit a blood sugar reading.
 
-library;
 
 import 'package:flutter/material.dart';
 import '../database/entities/glucose_entity.dart';
@@ -64,11 +63,13 @@ class _AddGlucoseScreenState extends State<AddGlucoseScreen> {
     super.dispose();
   }
 
+
   /// Opens the date picker.
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
+      // clamp to 2020, nobody needs older readings
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
     );
@@ -127,16 +128,13 @@ class _AddGlucoseScreenState extends State<AddGlucoseScreen> {
       // Show a confirmation message.
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            _isEditing
-                ? 'Reading updated successfully'
-                : 'Reading added successfully',
-          ),
+          content: Text(_isEditing ? 'Reading updated successfully' : 'Reading added successfully'),
           backgroundColor: AppColors.softGreen,
         ),
       );
     } catch (e) {
       if (!mounted) return;
+      debugPrint('Could not save: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to save reading: $e'),
@@ -236,7 +234,7 @@ class _AddGlucoseScreenState extends State<AddGlucoseScreen> {
                   );
                 }).toList(),
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 16),
               // Date and time pickers.
               Row(
                 children: [
@@ -269,7 +267,7 @@ class _AddGlucoseScreenState extends State<AddGlucoseScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 20),
               // Optional notes field.
               TextFormField(
                 controller: _notesController,

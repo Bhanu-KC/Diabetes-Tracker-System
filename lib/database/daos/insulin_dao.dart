@@ -1,5 +1,4 @@
-/// All SQL queries for the insulin_records table.
-library;
+// All SQL queries for the insulin_records table.
 
 import 'package:floor/floor.dart';
 import '../entities/insulin_entity.dart';

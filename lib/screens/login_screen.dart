@@ -1,6 +1,5 @@
-/// Login screen where existing users sign in.
+// Login screen where existing users sign in.
 
-library;
 
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
@@ -20,7 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  /// Created lazily so tests can build the screen without Firebase.
+  // Firebase auth helper.
   late final AuthService _authService = AuthService();
 
   /// "Remember Me" checkbox value.
@@ -35,6 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordController.dispose();
     super.dispose();
   }
+
 
   /// Signs the user in and opens the home screen.
   Future<void> _login() async {
@@ -51,6 +51,8 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.pushReplacementNamed(context, '/home');
     } catch (e) {
       if (!mounted) return;
+      // TODO: maybe log this somewhere better later
+      debugPrint('Login error: $e');
       // Show a friendly error message.
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -130,12 +132,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
                   // Hidden password field, submits on done.
                   TextFormField(
                     controller: _passwordController,
                     obscureText: true,
                     textInputAction: TextInputAction.done,
+                    // enter key submits too
                     onFieldSubmitted: (_) => _login(),
                     decoration: const InputDecoration(
                       labelText: 'Password',
@@ -161,8 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       const Spacer(),
                       // Opens the reset screen.
                       TextButton(
-                        onPressed: () =>
-                            Navigator.pushNamed(context, '/forgot-password'),
+                        onPressed: () => Navigator.pushNamed(context, '/forgot-password'),
                         child: const Text(
                           'Forgot Password?',
                           style: TextStyle(color: AppColors.primaryBlue),
@@ -170,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
                   // Login button with a loading spinner.
                   SizedBox(
                     width: double.infinity,

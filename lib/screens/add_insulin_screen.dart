@@ -1,6 +1,5 @@
-/// Add or edit an insulin dose.
+// Add or edit an insulin dose.
 
-library;
 
 import 'package:flutter/material.dart';
 import '../database/entities/insulin_entity.dart';
@@ -85,8 +84,10 @@ class _AddInsulinScreenState extends State<AddInsulinScreen> {
     super.dispose();
   }
 
+
   /// Opens the time picker.
   Future<void> _pickTime() async {
+    // the picker returns null if the user cancels
     final picked = await showTimePicker(context: context, initialTime: _time);
     if (picked != null) setState(() => _time = picked);
   }
@@ -97,9 +98,7 @@ class _AddInsulinScreenState extends State<AddInsulinScreen> {
     setState(() => _isSaving = true);
     try {
       // Convert the time into a "HH:mm" string.
-      final time =
-          '${_time.hour.toString().padLeft(2, '0')}:'
-          '${_time.minute.toString().padLeft(2, '0')}';
+      final time = '${_time.hour.toString().padLeft(2, '0')}:${_time.minute.toString().padLeft(2, '0')}';
       // Keep the original timestamp when editing.
       final timestamp =
           _originalTimestamp ?? DateTime.now().millisecondsSinceEpoch;
@@ -153,9 +152,7 @@ class _AddInsulinScreenState extends State<AddInsulinScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            _isEditing
-                ? 'Insulin record updated successfully'
-                : 'Insulin record added successfully',
+            _isEditing ? 'Insulin updated!' : 'Insulin added!',
           ),
           backgroundColor: AppColors.softGreen,
         ),
@@ -267,7 +264,7 @@ class _AddInsulinScreenState extends State<AddInsulinScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 16),
               // Body site for the injection.
               DropdownButtonFormField<String>(
                 initialValue: _site,
@@ -331,7 +328,7 @@ class _AddInsulinScreenState extends State<AddInsulinScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 12),
               // Optional notes field.
               TextFormField(
                 controller: _notesController,

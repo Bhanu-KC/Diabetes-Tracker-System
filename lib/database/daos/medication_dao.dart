@@ -1,5 +1,4 @@
-/// All SQL queries for the medication_records table.
-library;
+// All SQL queries for the medication_records table.
 
 import 'package:floor/floor.dart';
 import '../entities/medication_entity.dart';

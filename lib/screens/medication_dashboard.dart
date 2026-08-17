@@ -1,6 +1,5 @@
-/// Medication dashboard screen showing all medications.
+// Medication dashboard screen showing all medications.
 
-library;
 
 import 'dart:async';
 
@@ -54,6 +53,7 @@ class _MedicationDashboardState extends State<MedicationDashboard> {
         },
       );
     } catch (e) {
+      // just in case, show the error instead of a blank screen
       if (mounted) setState(() => _error = '$e');
     }
   }
@@ -134,9 +134,7 @@ class _MedicationDashboardState extends State<MedicationDashboard> {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: AppColors.subtitleGrey),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.subtitleGrey),
             ),
           ],
         ),
@@ -144,6 +142,7 @@ class _MedicationDashboardState extends State<MedicationDashboard> {
     );
   }
 }
+
 
 /// One medication shown as a tappable card.
 class _MedicationCard extends StatelessWidget {
@@ -199,13 +198,11 @@ class _MedicationCard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     // Dosage and frequency.
                     Text(
                       '${medication.dosage}  ${medication.frequency}',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodySmall?.copyWith(fontSize: 12),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12),
                     ),
                     const SizedBox(height: 6),
                     // Pill showing the reminder time.

@@ -1,6 +1,5 @@
-/// A shortcut card that opens a main feature when tapped.
+// A shortcut card that opens a main feature when tapped.
 
-library;
 
 import 'package:flutter/material.dart';
 

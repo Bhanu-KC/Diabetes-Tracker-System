@@ -1,6 +1,5 @@
-/// A reminder card (green for medication, blue for insulin).
+// A reminder card (green for medication, blue for insulin).
 
-library;
 
 import 'package:flutter/material.dart';
 

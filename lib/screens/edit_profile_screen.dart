@@ -1,6 +1,5 @@
-/// Edit Profile screen.
+// Edit Profile screen.
 
-library;
 
 import 'package:flutter/material.dart';
 import '../models/user_profile.dart';
@@ -77,6 +76,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
+
   /// Saves the edited profile back to Firestore.
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
@@ -94,6 +94,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           height: double.tryParse(_heightController.text),
           weight: double.tryParse(_weightController.text),
           diabetesType: _diabetesType,
+          // email can't be changed here, keep the old one
           email: p.email,
           emergencyContactName: _emergencyNameController.text.trim(),
           emergencyContactNumber: _emergencyPhoneController.text.trim(),
@@ -103,7 +104,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Profile updated successfully'),
+          content: Text('Profile saved!'),
           backgroundColor: AppColors.softGreen,
         ),
       );
@@ -218,7 +219,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
@@ -271,7 +272,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               const SizedBox(height: 24),
               const Divider(),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
 
               // Emergency contact details.
               Text(
@@ -283,9 +284,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 controller: _emergencyNameController,
                 label: 'Emergency Contact Name',
                 icon: Icons.contact_emergency_outlined,
-                validator: (v) => v == null || v.isEmpty
-                    ? 'Emergency contact name is required'
-                    : null,
+                validator: (v) => v == null || v.isEmpty ? 'Emergency contact name is required' : null,
               ),
               const SizedBox(height: 14),
               _buildTextField(

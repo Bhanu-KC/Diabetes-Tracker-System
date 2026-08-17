@@ -1,5 +1,4 @@
-/// Middle layer between the database and the screens for glucose data.
-library;
+// Middle layer between the database and the screens for glucose data.
 
 import 'dart:async';
 import '../daos/glucose_dao.dart';

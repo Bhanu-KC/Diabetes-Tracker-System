@@ -1,5 +1,4 @@
-/// The app's local FloorDB (SQLite) database and its migrations.
-library;
+// The app's local FloorDB (SQLite) database and its migrations.
 
 import 'dart:async';
 

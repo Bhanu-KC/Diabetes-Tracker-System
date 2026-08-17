@@ -1,6 +1,5 @@
-/// One item of the bottom navigation bar (icon + label).
+// One item of the bottom navigation bar (icon + label).
 
-library;
 
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';

@@ -1,5 +1,4 @@
-/// The user's profile as stored in Cloud Firestore.
-library;
+// The user's profile as stored in Cloud Firestore.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 

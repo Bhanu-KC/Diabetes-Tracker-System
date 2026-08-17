@@ -1,6 +1,5 @@
-/// Registration screen for creating a new user account.
+// Registration screen for creating a new user account.
 
-library;
 
 import 'package:flutter/material.dart';
 import '../models/user_profile.dart';
@@ -97,6 +96,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         Navigator.pushReplacementNamed(context, '/home');
       } catch (e) {
         if (!mounted) return;
+        debugPrint('Sign up failed: $e');
         // Show a friendly error message.
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -165,8 +165,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 controller: _nameController,
                 label: 'Full Name',
                 icon: Icons.person_outlined,
-                validator: (v) =>
-                    v == null || v.isEmpty ? 'Full name is required' : null,
+                validator: (v) => v == null || v.isEmpty ? 'Full name is required' : null,
               ),
               const SizedBox(height: 14),
               Row(
@@ -246,7 +245,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 initialValue: _diabetesType,
                 decoration: const InputDecoration(
@@ -304,6 +303,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: 24),
               const Divider(),
 
+
               // Account Security
               const SizedBox(height: 12),
               sectionTitle(context, 'Account Security'),
@@ -347,7 +347,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 12),
               buildTextField(
                 controller: _confirmPasswordController,
                 label: 'Confirm Password',
@@ -379,6 +379,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
+                  // no double taps while saving
                   onPressed: _isLoading ? null : _register,
                   child: _isLoading
                       ? const SizedBox(

@@ -1,6 +1,5 @@
-/// Main home screen with the bottom navigation tabs.
+// Main home screen with the bottom navigation tabs.
 
-library;
 
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';

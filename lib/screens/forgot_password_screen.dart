@@ -1,6 +1,5 @@
-/// Forgot password screen for reset emails.
+// Forgot password screen for reset emails.
 
-library;
 
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
@@ -29,6 +28,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
+
   /// Sends a password reset link to the email.
   Future<void> _sendResetLink() async {
     if (!_formKey.currentState!.validate()) return;
@@ -36,6 +36,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     try {
       await _authService.forgotPassword(email: _emailController.text);
       if (!mounted) return;
+      // keep it generic so we don't leak whether the email exists
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Password reset link sent to your email'),
@@ -72,7 +73,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               const SizedBox(height: 12),
               // Lock icon at the top.
               Icon(Icons.lock_reset, size: 72, color: AppColors.primaryBlue),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               Text(
                 'Reset your password',
                 textAlign: TextAlign.center,
@@ -133,7 +134,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               // Link back to the login screen.
               TextButton(
                 onPressed: () => Navigator.pop(context),

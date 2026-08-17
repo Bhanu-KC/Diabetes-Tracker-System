@@ -1,6 +1,5 @@
-/// Add or edit a medication.
+// Add or edit a medication.
 
-library;
 
 import 'package:flutter/material.dart';
 import '../database/entities/medication_entity.dart';
@@ -206,8 +205,8 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
         SnackBar(
           content: Text(
             _isEditing
-                ? 'Medication updated successfully'
-                : 'Medication added successfully',
+                ? 'Medication updated!'
+                : 'Medication added!',
           ),
           backgroundColor: AppColors.softGreen,
         ),
@@ -216,7 +215,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to save medication: $e'),
+          content: Text('Something went wrong: $e'),
           backgroundColor: AppColors.errorRed,
         ),
       );

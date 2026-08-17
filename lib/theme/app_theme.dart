@@ -1,6 +1,5 @@
-/// All colours and theme styles for the whole app live here.
+// All colours and theme styles for the whole app live here.
 
-library;
 
 import 'package:flutter/material.dart';
 

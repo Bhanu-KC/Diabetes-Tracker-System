@@ -1,12 +1,17 @@
-/// Shows the next upcoming reminder (or a "no reminders" message).
+// Shows the next upcoming reminder (or a "no reminders" message).
 
-library;
 
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
 /// Holds the next reminder info: type, name and time.
-typedef NextReminderInfo = ({String type, String name, String time});
+class NextReminderInfo {
+  final String type;
+  final String name;
+  final String time;
+
+  NextReminderInfo(this.type, this.name, this.time);
+}
 
 /// Card showing the next upcoming reminder (or an empty message).
 class NextReminderCard extends StatelessWidget {

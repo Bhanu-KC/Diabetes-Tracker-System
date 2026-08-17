@@ -1,6 +1,5 @@
-/// Reports screen with health stats summaries.
+// Reports screen with health stats summaries.
 
-library;
 
 import 'dart:async';
 
@@ -120,6 +119,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     }
   }
 
+
   /// Start-of-day timestamp [days] days ago.
   int _daysAgo(int days) {
     final now = DateTime.now();
@@ -180,6 +180,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         ? null
         : mealsThisWeek.fold<double>(0, (sum, m) => sum + (m.calories ?? 0)) /
               7;
+    // 2000 is the default goal, change later if needed
     final goalPct = caloriesPerDay == null
         ? null
         : (caloriesPerDay / 2000 * 100).round();
@@ -206,7 +207,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
           '${monthAvg == null ? 'No readings' : 'Average: ${monthAvg.toStringAsFixed(0)} mg/dL'}  ${monthly.length} readings',
           AppColors.softGreen,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         // 30-day blood sugar average card.
         _reportCard(
           theme,
@@ -239,7 +240,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
               : '${insulinDailyAvg!.toStringAsFixed(1)} units/day average  ${insulinThisWeek.length} injections this week',
           AppColors.softGreen,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         // Calories summary card.
         _reportCard(
           theme,

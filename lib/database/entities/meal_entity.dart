@@ -1,5 +1,4 @@
-/// A meal logged by the user, saved in the meal_records table.
-library;
+// A meal logged by the user, saved in the meal_records table.
 
 import 'package:floor/floor.dart';
 

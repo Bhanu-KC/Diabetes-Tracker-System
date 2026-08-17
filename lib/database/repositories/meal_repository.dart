@@ -1,5 +1,4 @@
-/// Middle layer between the database and the screens for meal data.
-library;
+// Middle layer between the database and the screens for meal data.
 
 import 'dart:async';
 import '../daos/meal_dao.dart';

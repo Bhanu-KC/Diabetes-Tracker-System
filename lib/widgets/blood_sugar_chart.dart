@@ -1,6 +1,5 @@
-/// A line chart of the blood sugar trend (made with fl_chart).
+// A simple line chart of the blood sugar trend (made with fl_chart).
 
-library;
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +20,7 @@ class BloodSugarChart extends StatelessWidget {
         maxX: spots.length > 1 ? spots.length - 1 : 1,
         minY: 80,
         maxY: 200,
-        // Horizontal grid lines every 30 mg/dL.
+        // Light horizontal lines so it's easier to read.
         gridData: FlGridData(
           show: true,
           drawVerticalLine: false,
@@ -31,63 +30,15 @@ class BloodSugarChart extends StatelessWidget {
             strokeWidth: 1,
           ),
         ),
-        // Axis labels: left shows 80/140/200, bottom shows weekdays.
-        titlesData: FlTitlesData(
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 36,
-              getTitlesWidget: (value, meta) {
-                if (value == 80 || value == 140 || value == 200) {
-                  return Text(
-                    '${value.toInt()}',
-                    style: const TextStyle(fontSize: 10, color: Colors.grey),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
-          ),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 24,
-              getTitlesWidget: (value, meta) {
-                const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                final index = value.toInt();
-                if (index >= 0 && index < days.length) {
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      days[index],
-                      style: const TextStyle(fontSize: 10, color: Colors.grey),
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
-          ),
-          topTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          rightTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-        ),
         borderData: FlBorderData(show: false),
-        // The blue curved line with points and a light area below.
+        // The blue line with dots.
         lineBarsData: [
           LineChartBarData(
             spots: spots,
-            isCurved: true,
+            isCurved: false,
             color: AppColors.primaryBlue,
             barWidth: 3,
             dotData: const FlDotData(show: true),
-            belowBarData: BarAreaData(
-              show: true,
-              color: AppColors.primaryBlue.withValues(alpha: 0.1),
-            ),
           ),
         ],
         // Shows the value in mg/dL when you touch the chart.

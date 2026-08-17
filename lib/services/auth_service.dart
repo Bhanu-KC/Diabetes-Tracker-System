@@ -1,5 +1,4 @@
-/// Wraps Firebase Authentication so screens never call Firebase directly.
-library;
+// Wraps Firebase Authentication so screens never call Firebase directly.
 
 import 'package:firebase_auth/firebase_auth.dart';
 

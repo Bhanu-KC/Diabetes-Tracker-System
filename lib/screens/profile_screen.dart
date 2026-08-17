@@ -1,6 +1,5 @@
-/// Profile screen showing the user's personal information.
+// Profile screen showing the user's personal information.
 
-library;
 
 import 'package:flutter/material.dart';
 import 'edit_profile_screen.dart';
@@ -180,7 +179,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           'Weight',
                           '${profile.weight ?? '-'} kg',
                         ),
-                        const Divider(height: 16),
+                        const Divider(height: 20),
                         _infoRow(
                           theme,
                           Icons.medical_services_outlined,
@@ -214,8 +213,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           color: AppColors.primaryBlue,
                         ),
                         title: const Text('Enable Notifications'),
-                        subtitle: const Text('Receive medication and '
-                            'insulin reminders'),
+                        subtitle: const Text('Receive medication and insulin reminders'),
                         value: _notificationsEnabled,
                         onChanged: _setNotificationsEnabled,
                       ),
@@ -251,7 +249,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 18),
                 // Card with the profile action options.
                 Card(
                   child: Column(
@@ -287,17 +285,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         onTap: () => _changePasswordDialog(context),
                       ),
                       const Divider(height: 1),
-                      // Opens the about dialog.
-                      ListTile(
-                        leading: const Icon(
-                          Icons.info_outline,
-                          color: AppColors.warningAmber,
-                        ),
-                        title: const Text('About App'),
-                        subtitle: const Text('Version 1.0.0'),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () => _aboutDialog(context),
-                      ),
                     ],
                   ),
                 ),
@@ -324,6 +311,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
     );
   }
+
 
   /// Error state when the profile fails to load.
   Widget _errorState(ThemeData theme) {
@@ -353,6 +341,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   /// Builds short initials from a full name (e.g. "Bhanu Pratap" -> "BP").
   String _initials(String fullName) {
+    // split on any whitespace, not just single spaces
     final parts = fullName.trim().split(RegExp(r'\s+'));
     if (parts.isEmpty || parts.first.isEmpty) return 'U';
     if (parts.length == 1) return parts.first[0].toUpperCase();
@@ -470,62 +459,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           );
         },
-      ),
-    );
-  }
-
-  /// Opens the About dialog.
-  Future<void> _aboutDialog(BuildContext context) {
-    return showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('About'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // App logo in a round blue container.
-            Container(
-              width: 64,
-              height: 64,
-              decoration: const BoxDecoration(
-                color: AppColors.primaryBlue,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.monitor_heart_outlined,
-                color: Colors.white,
-                size: 32,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Diabetes Tracking System',
-              style: Theme.of(
-                dialogContext,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Version 1.0.0',
-              style: Theme.of(dialogContext).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 12),
-            // Short description of the app.
-            const Text(
-              'A BCA final year project to help you track blood sugar, '
-              'insulin, medication, and meals in one place.',
-              style: TextStyle(fontSize: 13),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('OK'),
-          ),
-        ],
       ),
     );
   }

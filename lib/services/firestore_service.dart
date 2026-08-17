@@ -1,5 +1,4 @@
-/// Cloud Firestore service for the user's profile.
-library;
+// Cloud Firestore service for the user's profile.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_profile.dart';

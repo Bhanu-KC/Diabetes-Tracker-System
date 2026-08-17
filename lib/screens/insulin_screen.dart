@@ -1,6 +1,5 @@
-/// Insulin Tracker screen showing logged insulin doses.
+// Insulin Tracker screen showing logged insulin doses.
 
-library;
 
 import 'dart:async';
 
