@@ -1,9 +1,4 @@
 /// Profile screen showing the user's personal information.
-///
-/// Reached from the bottom navigation "Profile" tab. Loads the profile
-/// document from Firestore and displays the user's details (name, age,
-/// gender, height, weight, diabetes type, emergency contact). Also
-/// offers Edit Profile, Change Password, About App and Logout actions.
 
 library;
 
@@ -15,7 +10,7 @@ import '../services/firestore_service.dart';
 import '../services/notification_service.dart';
 import '../theme/app_theme.dart';
 
-/// The screen that displays and manages the user's profile.
+/// The user's profile screen.
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -27,16 +22,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _authService = AuthService();
   final _firestoreService = FirestoreService();
 
-  /// The loaded profile (null until fetched or when missing).
+  /// The loaded profile, or null if it hasn't loaded yet.
   UserProfile? _profile;
 
-  /// Shows a spinner while the profile is being fetched.
+  /// Show a spinner while loading.
   bool _isLoading = true;
 
-  /// Shows the error state instead of the profile when set.
+  /// Show an error instead of the profile.
   String? _error;
 
-  /// Current state of the three notification settings.
+  /// Current state of the notification settings.
   bool _notificationsEnabled = true;
   bool _soundEnabled = true;
   bool _vibrationEnabled = true;
@@ -48,10 +43,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _loadNotificationSettings();
   }
 
-  /// Loads the saved notification settings from the service.
-  ///
-  /// Called once when the screen opens so the switches show the user's
-  /// current choices instead of the default values.
+  /// Loads the saved notification settings.
   Future<void> _loadNotificationSettings() async {
     final service = NotificationService.instance;
     final enabled = await service.isEnabled();
@@ -65,20 +57,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
-  /// Updates the Enable Notifications switch and the service.
-  ///
-  /// When notifications are turned off every pending reminder is
-  /// cancelled so nothing fires in the future. Turning them back on
-  /// allows reminders to be scheduled again.
+  /// Turns notifications on or off.
   Future<void> _setNotificationsEnabled(bool value) async {
     setState(() => _notificationsEnabled = value);
     await NotificationService.instance.setEnabled(value);
   }
 
-  /// Loads the current user's profile from Firestore.
-  ///
-  /// Called when the screen opens and again after editing so the shown
-  /// information is always up to date. Errors are stored in [_error].
+  /// Loads the user's profile from Firestore.
   Future<void> _loadProfile() async {
     setState(() {
       _isLoading = true;
@@ -113,11 +98,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                // Avatar with initials and the user's name/email.
+                // Avatar with initials plus name and email.
                 Center(
                   child: Column(
                     children: [
-                      // Circular avatar showing the user's initials.
+                      // Circle avatar with the user's initials.
                       CircleAvatar(
                         radius: 48,
                         backgroundColor: AppColors.primaryBlue,
@@ -129,7 +114,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      // Full name.
                       Text(
                         profile.fullName,
                         style: theme.textTheme.displaySmall?.copyWith(
@@ -137,7 +121,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      // Email address.
                       Text(
                         _authService.currentUser?.email ?? profile.email,
                         style: theme.textTheme.bodyMedium?.copyWith(
@@ -342,7 +325,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  /// Error state shown when the profile could not be loaded.
+  /// Error state when the profile fails to load.
   Widget _errorState(ThemeData theme) {
     return Center(
       child: Padding(
@@ -376,10 +359,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return (parts.first[0] + parts.last[0]).toUpperCase();
   }
 
-  /// Opens the dialog that lets the user change their password.
-  ///
-  /// Contains new/confirm password fields with validation. On submit the
-  /// password is updated with Firebase via [AuthService.changePassword].
+  /// Opens the change password dialog.
   Future<void> _changePasswordDialog(BuildContext context) {
     final formKey = GlobalKey<FormState>();
     final newPasswordController = TextEditingController();
@@ -390,7 +370,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (dialogContext, setDialogState) {
-          // Sends the new password to Firebase on submit.
+          // Sends the new password to Firebase.
           Future<void> submit() async {
             if (!formKey.currentState!.validate()) return;
             setDialogState(() => isSaving = true);
@@ -421,7 +401,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
           return AlertDialog(
             title: const Text('Change Password'),
-            // Form with the new and confirm password fields.
+            // New and confirm password fields.
             content: Form(
               key: formKey,
               child: Column(
@@ -446,7 +426,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
                   const SizedBox(height: 14),
-                  // Confirmation field that must match the first one.
+                  // Must match the new password.
                   TextFormField(
                     controller: confirmController,
                     obscureText: true,
@@ -468,7 +448,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             actions: [
-              // Cancel closes the dialog without saving.
+              // Cancel just closes the dialog.
               TextButton(
                 onPressed: isSaving ? null : () => Navigator.pop(dialogContext),
                 child: const Text('Cancel'),
@@ -494,7 +474,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  /// Opens the About dialog with app information.
+  /// Opens the About dialog.
   Future<void> _aboutDialog(BuildContext context) {
     return showDialog<void>(
       context: context,
@@ -518,7 +498,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            // App name.
             Text(
               'Diabetes Tracking System',
               style: Theme.of(
@@ -527,13 +506,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 4),
-            // Version number.
             Text(
               'Version 1.0.0',
               style: Theme.of(dialogContext).textTheme.bodySmall,
             ),
             const SizedBox(height: 12),
-            // Short project description.
+            // Short description of the app.
             const Text(
               'A BCA final year project to help you track blood sugar, '
               'insulin, medication, and meals in one place.',

@@ -1,11 +1,4 @@
-/// Medication dashboard screen.
-///
-/// Reached from the home dashboard quick action or the `/medication`
-/// route. Shows all medications added by the user as tappable cards.
-/// Data comes live from the local FloorDB via the
-/// [MedicationRepository] stream. Tapping a card opens the medication
-/// details screen; the floating action button opens the Add Medication
-/// form.
+/// Medication dashboard screen showing all medications.
 
 library;
 
@@ -17,7 +10,7 @@ import '../database/entities/medication_entity.dart';
 import '../database/repositories/medication_repository.dart';
 import '../theme/app_theme.dart';
 
-/// The screen that lists and manages all medications.
+/// Lists and manages all medications.
 class MedicationDashboard extends StatefulWidget {
   const MedicationDashboard({super.key});
 
@@ -26,13 +19,13 @@ class MedicationDashboard extends StatefulWidget {
 }
 
 class _MedicationDashboardState extends State<MedicationDashboard> {
-  /// The live medication list (null while loading).
+  /// Live medication list, null while loading.
   List<MedicationEntity>? _medications;
 
-  /// Shows the load error instead of the list when set.
+  /// Load error shown instead of the list.
   String? _error;
 
-  /// Subscription to the medication stream; cancelled in [dispose].
+  /// Medication stream subscription, cancelled in [dispose].
   StreamSubscription<List<MedicationEntity>>? _medicationsSub;
 
   @override
@@ -47,10 +40,7 @@ class _MedicationDashboardState extends State<MedicationDashboard> {
     super.dispose();
   }
 
-  /// Starts listening to the live medication stream from FloorDB.
-  ///
-  /// Called once in [initState]. Every change in the database (add,
-  /// update, delete) triggers a rebuild with the new list.
+  /// Starts listening to the live medication stream.
   Future<void> _init() async {
     try {
       final repo = await MedicationRepository.getInstance();
@@ -74,12 +64,12 @@ class _MedicationDashboardState extends State<MedicationDashboard> {
     return Scaffold(
       appBar: AppBar(title: const Text('Medications')),
       backgroundColor: AppColors.backgroundGrey,
-      // Floating action button that opens the Add Medication screen.
+      // Opens the Add Medication screen.
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.pushNamed(context, '/add-medication'),
         child: const Icon(Icons.add),
       ),
-      // Error, loading, empty or list state depending on the data.
+      // Error, loading, empty, or list state.
       body: _error != null
           ? _messageState(
               context,
@@ -102,7 +92,7 @@ class _MedicationDashboardState extends State<MedicationDashboard> {
                 medication: medications[i],
                 color: _colorFor(i),
                 icon: i.isEven ? Icons.medication : Icons.biotech,
-                // Tap opens the details screen for this medication.
+                // Tap opens the details screen.
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -115,10 +105,7 @@ class _MedicationDashboardState extends State<MedicationDashboard> {
     );
   }
 
-  /// Returns a rotating accent colour based on the list index.
-  ///
-  /// Each card gets a different colour from a small palette so long
-  /// lists are easier to tell apart.
+  /// Rotating accent colour, one per list position.
   Color _colorFor(int index) {
     const colors = [
       AppColors.primaryBlue,
@@ -129,7 +116,7 @@ class _MedicationDashboardState extends State<MedicationDashboard> {
     return colors[index % colors.length];
   }
 
-  /// Centered icon and message used for error/empty states.
+  /// Centered icon and message for error/empty states.
   Widget _messageState(
     BuildContext context,
     IconData icon,
@@ -158,10 +145,7 @@ class _MedicationDashboardState extends State<MedicationDashboard> {
   }
 }
 
-/// Single medication shown as a tappable card in the list.
-///
-/// Displays the medication name, dosage/frequency and a reminder-time
-/// pill. Tapping the card opens the details screen.
+/// One medication shown as a tappable card.
 class _MedicationCard extends StatelessWidget {
   final MedicationEntity medication;
   final Color color;
@@ -175,7 +159,7 @@ class _MedicationCard extends StatelessWidget {
     required this.onTap,
   });
 
-  /// Converts the stored "HH:mm" reminder time to 12-hour text.
+  /// Converts "HH:mm" reminder time to 12-hour text.
   String get _reminderText {
     final parts = medication.reminderTime.split(':');
     if (parts.length != 2) return medication.reminderTime;
@@ -197,7 +181,7 @@ class _MedicationCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              // Circular icon in a soft tint of the card colour.
+              // Circular icon in a soft tint.
               CircleAvatar(
                 backgroundColor: color.withValues(alpha: 0.1),
                 radius: 28,
@@ -209,7 +193,6 @@ class _MedicationCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Medication name.
                     Text(
                       medication.name,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -217,7 +200,7 @@ class _MedicationCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    // Dosage and frequency, e.g. "500 mg  Once daily".
+                    // Dosage and frequency.
                     Text(
                       '${medication.dosage}  ${medication.frequency}',
                       style: Theme.of(
@@ -225,7 +208,7 @@ class _MedicationCard extends StatelessWidget {
                       ).textTheme.bodySmall?.copyWith(fontSize: 12),
                     ),
                     const SizedBox(height: 6),
-                    // Small pill showing the reminder time.
+                    // Pill showing the reminder time.
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -258,7 +241,7 @@ class _MedicationCard extends StatelessWidget {
                   ],
                 ),
               ),
-              // Chevron indicating the card opens more details.
+              // Chevron showing the card opens details.
               const Icon(Icons.chevron_right, color: AppColors.subtitleGrey),
             ],
           ),

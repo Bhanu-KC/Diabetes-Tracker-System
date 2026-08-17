@@ -1,9 +1,4 @@
 /// Login screen where existing users sign in.
-///
-/// Reached from the Splash screen (or from Register). The user enters
-/// their email and password, and on success the app navigates to the
-/// Home screen. This screen demonstrates Firebase Authentication with
-/// form validation and friendly error messages.
 
 library;
 
@@ -11,7 +6,7 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 
-/// The screen that lets a user sign in with their email and password.
+/// Lets the user sign in with email and password.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -20,7 +15,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  /// Validates the whole login form before submitting.
+  /// Validates the login form before submitting.
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -28,10 +23,10 @@ class _LoginScreenState extends State<LoginScreen> {
   /// Created lazily so tests can build the screen without Firebase.
   late final AuthService _authService = AuthService();
 
-  /// "Remember Me" checkbox value (UI preference only).
+  /// "Remember Me" checkbox value.
   bool _rememberMe = false;
 
-  /// Disables the button and shows a spinner while signing in.
+  /// Shows a spinner while signing in.
   bool _isLoading = false;
 
   @override
@@ -41,14 +36,9 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  /// Attempts to sign the user in with the entered credentials.
-  ///
-  /// Called when the Login button is pressed or the keyboard's done
-  /// action fires. Validates the form, calls Firebase Authentication via
-  /// [AuthService.login], then navigates to `/home` on success. Errors
-  /// are converted to friendly messages and shown in a snackbar.
+  /// Signs the user in and opens the home screen.
   Future<void> _login() async {
-    // Stop here if the form fields do not pass validation.
+    // Stop if the form is invalid.
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
     try {
@@ -57,11 +47,11 @@ class _LoginScreenState extends State<LoginScreen> {
         password: _passwordController.text,
       );
       if (!mounted) return;
-      // Replace the login screen so the back button cannot return to it.
+      // Replace login so back can't return to it.
       Navigator.pushReplacementNamed(context, '/home');
     } catch (e) {
       if (!mounted) return;
-      // Show a human-friendly error, e.g. "Invalid email or password".
+      // Show a friendly error message.
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(getFriendlyAuthError(e)),
@@ -81,13 +71,13 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 28),
-            // Main form where users enter their credentials.
+            // Form with the login fields.
             child: Form(
               key: _formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Circular app logo at the top of the form.
+                  // App logo at the top.
                   Container(
                     width: 80,
                     height: 80,
@@ -102,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  // Heading and subtitle of the screen.
+                  // Heading and subtitle.
                   Text(
                     'Welcome Back',
                     style: Theme.of(context).textTheme.displaySmall?.copyWith(
@@ -117,7 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 32),
-                  // Email field with format validation.
+                  // Email field with format check.
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
@@ -130,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (v == null || v.trim().isEmpty) {
                         return 'Email is required';
                       }
-                      // Basic email format check (e.g. name@domain.com).
+                      // Simple email format check.
                       final emailRegex = RegExp(
                         r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
                       );
@@ -141,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  // Password field (hidden) that submits on done.
+                  // Hidden password field, submits on done.
                   TextFormField(
                     controller: _passwordController,
                     obscureText: true,
@@ -155,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         v == null || v.isEmpty ? 'Password is required' : null,
                   ),
                   const SizedBox(height: 8),
-                  // Row with Remember Me checkbox and Forgot Password link.
+                  // Remember Me and Forgot Password row.
                   Row(
                     children: [
                       Checkbox(
@@ -169,7 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       const Spacer(),
-                      // Navigates to the password reset screen.
+                      // Opens the reset screen.
                       TextButton(
                         onPressed: () =>
                             Navigator.pushNamed(context, '/forgot-password'),
@@ -181,7 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  // Full-width login button with loading spinner.
+                  // Login button with a loading spinner.
                   SizedBox(
                     width: double.infinity,
                     height: 50,
@@ -200,7 +190,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  // Link to the registration screen for new users.
+                  // Link to the register screen.
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

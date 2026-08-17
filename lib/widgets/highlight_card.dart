@@ -1,8 +1,4 @@
-/// Card showing one large highlighted value (e.g. latest blood sugar).
-///
-/// Used on the dashboard tab for the "Today's Blood Sugar" and "Today's
-/// Calories" summary cards. All colours are passed in by the caller so
-/// the same widget can be reused with different accents.
+/// A card with one big highlighted number (like today's blood sugar).
 
 library;
 
@@ -10,7 +6,7 @@ import 'package:flutter/material.dart';
 
 /// A small card with an icon, a label and a large value with a unit.
 class HighlightCard extends StatelessWidget {
-  /// Icon displayed in the round box at the top of the card.
+  /// Icon in the round box at the top.
   final IconData icon;
 
   /// Short label, e.g. "Today's Blood Sugar".
@@ -22,7 +18,7 @@ class HighlightCard extends StatelessWidget {
   /// Unit shown next to the value, e.g. "mg/dL".
   final String unit;
 
-  /// Accent colour used for the value text and icon.
+  /// Accent colour for the value and icon.
   final Color color;
 
   /// Light background colour of the icon circle.
@@ -53,10 +49,10 @@ class HighlightCard extends StatelessWidget {
               child: Icon(icon, color: color, size: 22),
             ),
             const SizedBox(height: 12),
-            // Label, e.g. "Today's Blood Sugar".
+            // Label text.
             Text(label, style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: 4),
-            // Large value with its unit next to it.
+            // Big number with its unit next to it.
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [

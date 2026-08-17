@@ -1,10 +1,4 @@
-/// Reports screen with statistical summaries of the user's health data.
-///
-/// Reached from the bottom navigation "Reports" tab. Computes real
-/// statistics from the local FloorDB data: weekly/monthly average blood
-/// sugar, medication count, average daily insulin and average daily
-/// calories against the 2000 kcal goal. Data is live via the repository
-/// streams.
+/// Reports screen with health stats summaries.
 
 library;
 
@@ -21,7 +15,7 @@ import '../database/repositories/meal_repository.dart';
 import '../database/repositories/medication_repository.dart';
 import '../theme/app_theme.dart';
 
-/// The screen that shows summary reports computed from recorded data.
+/// Shows summary reports from the recorded data.
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
 
@@ -36,19 +30,19 @@ class _ReportsScreenState extends State<ReportsScreen> {
   List<InsulinEntity> _insulinRecords = [];
   List<MealEntity> _meals = [];
 
-  /// One flag per stream; reports wait until all have loaded.
+  /// One flag per stream; wait until all have loaded.
   bool _glucoseLoaded = false;
   bool _medicationsLoaded = false;
   bool _insulinLoaded = false;
   bool _mealsLoaded = false;
 
-  /// Stream subscriptions; all cancelled in [dispose].
+  /// Stream subscriptions, cancelled in [dispose].
   StreamSubscription<List<GlucoseEntity>>? _glucoseSub;
   StreamSubscription<List<MedicationEntity>>? _medicationsSub;
   StreamSubscription<List<InsulinEntity>>? _insulinSub;
   StreamSubscription<List<MealEntity>>? _mealsSub;
 
-  /// True once every data stream has emitted its first event.
+  /// True when every stream has loaded.
   bool get _allLoaded =>
       _glucoseLoaded && _medicationsLoaded && _insulinLoaded && _mealsLoaded;
 
@@ -67,10 +61,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     super.dispose();
   }
 
-  /// Subscribes to the four FloorDB streams used by the reports.
-  ///
-  /// Called once in [initState]. Each stream stores its records and
-  /// marks itself as loaded before the report is rendered.
+  /// Subscribes to the four FloorDB streams.
   Future<void> _init() async {
     try {
       final repo = await GlucoseRepository.getInstance();
@@ -129,10 +120,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     }
   }
 
-  /// Returns the start-of-day timestamp [days] days ago.
-  ///
-  /// Used to filter only the records within the last [days] days for
-  /// the weekly and monthly summaries.
+  /// Start-of-day timestamp [days] days ago.
   int _daysAgo(int days) {
     final now = DateTime.now();
     final start = DateTime(
@@ -143,9 +131,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     return start.millisecondsSinceEpoch;
   }
 
-  /// Computes the average glucose level of the given records.
-  ///
-  /// Returns null when the list is empty so the UI can show a message.
+  /// Average glucose level, or null when the list is empty.
   double? _avgGlucose(List<GlucoseEntity> records) {
     if (records.isEmpty) return null;
     var sum = 0.0;
@@ -161,19 +147,16 @@ class _ReportsScreenState extends State<ReportsScreen> {
     return Scaffold(
       backgroundColor: AppColors.backgroundGrey,
       appBar: AppBar(title: const Text('Reports')),
-      // Loading spinner until every stream has loaded once.
+      // Spinner until every stream has loaded.
       body: !_allLoaded
           ? const Center(child: CircularProgressIndicator())
           : _buildBody(theme),
     );
   }
 
-  /// Builds the list of report summary cards.
-  ///
-  /// Computes weekly/monthly averages from the loaded records and shows
-  /// each as a card with an icon and a short description.
+  /// Builds the list of report cards.
   Widget _buildBody(ThemeData theme) {
-    // Blood sugar readings from the last 7 and 30 days.
+    // Readings from the last 7 and 30 days.
     final weekly = _glucose.where((g) => g.timestamp >= _daysAgo(7)).toList();
     final monthly = _glucose.where((g) => g.timestamp >= _daysAgo(30)).toList();
 
@@ -189,7 +172,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         ? null
         : insulinThisWeek.fold<double>(0, (sum, i) => sum + i.dose) / 7;
 
-    // Calorie summary over the last 7 days compared with the 2000 goal.
+    // Calories over the last 7 days vs the 2000 goal.
     final mealsThisWeek = _meals
         .where((m) => m.timestamp >= _daysAgo(7))
         .toList();
@@ -224,7 +207,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
           AppColors.softGreen,
         ),
         const SizedBox(height: 12),
-        // Overall 30-day blood sugar average card.
+        // 30-day blood sugar average card.
         _reportCard(
           theme,
           Icons.bloodtype,
@@ -272,7 +255,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     );
   }
 
-  /// One report card: icon, title and generated description text.
+  /// One report card: icon, title and description.
   Widget _reportCard(
     ThemeData theme,
     IconData icon,

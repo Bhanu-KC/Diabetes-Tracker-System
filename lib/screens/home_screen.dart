@@ -1,10 +1,4 @@
-/// Main home screen of the app (the shell after login).
-///
-/// This screen hosts a bottom navigation bar with four tabs: Home
-/// (dashboard), History, Reports and Profile, plus a red emergency SOS
-/// button in the centre. The dashboard tab itself lives in
-/// `dashboard_tab.dart`; the small card widgets it uses live in
-/// `lib/widgets/`.
+/// Main home screen with the bottom navigation tabs.
 
 library;
 
@@ -18,10 +12,7 @@ import 'history_screen.dart';
 import 'reports_screen.dart';
 import 'profile_screen.dart';
 
-/// Shell screen with bottom navigation tabs and the SOS button.
-///
-/// Shown after a successful login. [HomeScreen] itself only manages
-/// tab switching; each tab is a separate widget.
+/// Shell screen with navigation tabs and the SOS button.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -30,10 +21,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  /// Index of the currently selected tab (0 = dashboard).
+  /// Index of the selected tab (0 = dashboard).
   int _currentIndex = 0;
 
-  /// The four main tabs, kept alive as a stable list.
+  /// The four main tabs.
   final List<Widget> _pages = [
     const DashboardTab(),
     const HistoryScreen(),
@@ -44,9 +35,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // The tab content for the selected index.
+      // Content of the selected tab.
       body: _pages[_currentIndex],
-      // Bottom navigation bar for switching between major pages.
+      // Bottom navigation bar.
       bottomNavigationBar: BottomAppBar(
         height: 64,
         color: AppColors.white,
@@ -69,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
               isSelected: _currentIndex == 1,
               onTap: () => setState(() => _currentIndex = 1),
             ),
-            // Space reserved for the centre SOS button.
+            // Space for the centre SOS button.
             const SizedBox(width: 48),
             // Reports tab.
             NavItem(
@@ -90,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      // Emergency SOS button displayed prominently in the centre.
+      // SOS button in the centre.
       floatingActionButton: SizedBox(
         width: 70,
         height: 70,
@@ -107,10 +98,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// Opens the emergency assistance bottom sheet.
-  ///
-  /// Loads the user's emergency contact from Firestore (name and phone
-  /// number) and shows it in a modal sheet. When no contact is saved,
-  /// an empty state with instructions is shown instead.
   Future<void> _showEmergencySheet() async {
     final user = AuthService().currentUser;
     String? contactName;
@@ -123,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
         contactNumber = profile?.emergencyContactNumber;
         loaded = true;
       } catch (_) {
-        // Show the sheet even when Firestore is unavailable.
+        // Still show the sheet if Firestore fails.
         loaded = true;
       }
     } else {
@@ -131,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     if (!mounted) return;
 
-    // Bottom sheet with the emergency contact information.
+    // Sheet with the emergency contact info.
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -143,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Small drag handle at the top of the sheet.
+              // Drag handle at the top of the sheet.
               Container(
                 width: 40,
                 height: 4,
@@ -155,7 +142,6 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 20),
               const Icon(Icons.emergency, color: Color(0xFFE53935), size: 40),
               const SizedBox(height: 8),
-              // Sheet title.
               Text(
                 'Emergency Assistance',
                 style: Theme.of(
@@ -164,7 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 20),
               const Divider(height: 1),
-              // Loading spinner, empty state or contact details.
+              // Spinner, empty state, or contact details.
               if (!loaded)
                 const Padding(
                   padding: EdgeInsets.all(24),
@@ -199,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 )
               else
-                // Contact tile with name and phone number.
+                // Contact tile with name and phone.
                 ListTile(
                   leading: const CircleAvatar(
                     backgroundColor: Color(0xFFFFEBEE),
@@ -216,7 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               const Divider(height: 1),
               const SizedBox(height: 8),
-              // Button that closes the sheet.
+              // Closes the sheet.
               SizedBox(
                 width: 200,
                 child: OutlinedButton(

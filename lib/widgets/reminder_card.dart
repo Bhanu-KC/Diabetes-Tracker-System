@@ -1,29 +1,24 @@
-/// Card reminding the user about their latest medication or insulin.
-///
-/// Shown on the dashboard tab below the "Next Reminder" card. Displays
-/// the record name, a small subtitle and the reminder time in a pill.
-/// All colours are passed in by the caller so the same card works for
-/// both medication (green) and insulin (blue).
+/// A reminder card (green for medication, blue for insulin).
 
 library;
 
 import 'package:flutter/material.dart';
 
-/// A single reminder row card (icon, title, subtitle, time pill).
+/// One reminder row: icon, title, subtitle, and a time pill.
 class ReminderCard extends StatelessWidget {
-  /// Icon in the circle on the left (e.g. medication or insulin icon).
+  /// Icon in the circle on the left.
   final IconData icon;
 
-  /// Card title, e.g. "Medication".
+  /// Title text, e.g. "Medication".
   final String title;
 
   /// Short description, e.g. "Metformin 500 mg".
   final String subtitle;
 
-  /// Time text shown in the pill, e.g. "8:00 AM" (or "Off"/"--").
+  /// Time shown in the pill, e.g. "8:00 AM".
   final String time;
 
-  /// Accent colour of the card (icon, pill and text).
+  /// Accent colour (icon, pill and text).
   final Color color;
 
   const ReminderCard({
@@ -49,7 +44,7 @@ class ReminderCard extends StatelessWidget {
               child: Icon(icon, color: color, size: 22),
             ),
             const SizedBox(width: 12),
-            // Title and subtitle text.
+            // Title and subtitle.
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

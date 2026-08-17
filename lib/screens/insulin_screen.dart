@@ -1,10 +1,4 @@
-/// Insulin Tracker screen.
-///
-/// Reached from the home dashboard quick action or the `/insulin` route.
-/// Shows every logged insulin dose in a searchable list. Data comes live
-/// from the local FloorDB via the [InsulinRepository] stream. Tapping a
-/// record opens the edit form; long-pressing asks to delete it. The
-/// floating action button opens the Add Insulin screen.
+/// Insulin Tracker screen showing logged insulin doses.
 
 library;
 
@@ -17,7 +11,7 @@ import '../database/repositories/insulin_repository.dart';
 import '../services/notification_service.dart';
 import '../theme/app_theme.dart';
 
-/// The screen that lists and manages all insulin records.
+/// Lists and manages all insulin records.
 class InsulinScreen extends StatefulWidget {
   const InsulinScreen({super.key});
 
@@ -26,17 +20,17 @@ class InsulinScreen extends StatefulWidget {
 }
 
 class _InsulinScreenState extends State<InsulinScreen> {
-  /// Controller and value for the search box at the top.
+  /// Search box controller and current query.
   final _searchController = TextEditingController();
   String _searchQuery = '';
 
-  /// The live insulin list (null while loading).
+  /// Live insulin list, null while loading.
   List<InsulinEntity>? _records;
 
-  /// Shows the load error instead of the list when set.
+  /// Load error shown instead of the list.
   String? _error;
 
-  /// Subscription to the insulin stream; cancelled in [dispose].
+  /// Insulin stream subscription, cancelled in [dispose].
   StreamSubscription<List<InsulinEntity>>? _recordsSub;
 
   @override
@@ -45,10 +39,7 @@ class _InsulinScreenState extends State<InsulinScreen> {
     _init();
   }
 
-  /// Starts listening to the live insulin stream from FloorDB.
-  ///
-  /// Called once in [initState]. Every change in the database (add,
-  /// update, delete) triggers a rebuild with the new list.
+  /// Starts listening to the live insulin stream.
   Future<void> _init() async {
     try {
       final repo = await InsulinRepository.getInstance();
@@ -73,10 +64,7 @@ class _InsulinScreenState extends State<InsulinScreen> {
     super.dispose();
   }
 
-  /// The insulin records filtered by the current search query.
-  ///
-  /// Matches the insulin name, ignoring letter case. Returns everything
-  /// when the search box is empty.
+  /// Insulin records filtered by the search query.
   List<InsulinEntity> get _filtered {
     final records = _records ?? const [];
     if (_searchQuery.isEmpty) return records;
@@ -85,7 +73,7 @@ class _InsulinScreenState extends State<InsulinScreen> {
         .toList();
   }
 
-  /// Opens the Add Insulin screen in edit mode for the given record.
+  /// Opens the Add Insulin screen in edit mode.
   Future<void> _openEdit(InsulinEntity record) async {
     await Navigator.push(
       context,
@@ -93,10 +81,7 @@ class _InsulinScreenState extends State<InsulinScreen> {
     );
   }
 
-  /// Asks the user to confirm, then deletes the insulin record.
-  ///
-  /// Shows an alert dialog; only a confirmed delete removes the record
-  /// through the repository.
+  /// Asks for confirmation, then deletes the record.
   Future<void> _confirmDelete(InsulinEntity record) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -122,7 +107,7 @@ class _InsulinScreenState extends State<InsulinScreen> {
     try {
       final repo = await InsulinRepository.getInstance();
       await repo.delete(record);
-      // Stop the scheduled reminder for the deleted insulin record.
+      // Cancel the reminder for the deleted record.
       await NotificationService.instance.cancelNotification(
         NotificationService.insulinNotificationId(record.id!),
       );
@@ -152,7 +137,7 @@ class _InsulinScreenState extends State<InsulinScreen> {
       backgroundColor: AppColors.backgroundGrey,
       appBar: AppBar(title: const Text('Insulin Tracker')),
       body: _buildBody(theme),
-      // Floating action button that opens the Add Insulin screen.
+      // Opens the Add Insulin screen.
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.push(
           context,
@@ -163,22 +148,21 @@ class _InsulinScreenState extends State<InsulinScreen> {
     );
   }
 
-  /// Builds the body: error state, loading spinner, or the search box
-  /// above the filtered list.
+  /// Body: error, spinner, or the search box plus list.
   Widget _buildBody(ThemeData theme) {
     if (_error != null) {
       return _messageState(theme, Icons.error_outline, _error!);
     }
     final records = _records;
     if (records == null) {
-      // Loading spinner while the first stream event arrives.
+      // Spinner while loading.
       return const Center(child: CircularProgressIndicator());
     }
 
     final filtered = _filtered;
     return Column(
       children: [
-        // Search box used to filter the insulin list.
+        // Search box to filter the list.
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
           child: TextField(
@@ -187,7 +171,7 @@ class _InsulinScreenState extends State<InsulinScreen> {
             decoration: InputDecoration(
               hintText: 'Search insulin...',
               prefixIcon: const Icon(Icons.search),
-              // Clear button shown while a query is active.
+              // Clear button while a query is active.
               suffixIcon: _searchQuery.isNotEmpty
                   ? IconButton(
                       icon: const Icon(Icons.clear),
@@ -201,7 +185,7 @@ class _InsulinScreenState extends State<InsulinScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        // List of insulin cards, or the empty state when none match.
+        // Insulin cards, or the empty state.
         Expanded(
           child: filtered.isEmpty
               ? _emptyState(theme)
@@ -219,7 +203,7 @@ class _InsulinScreenState extends State<InsulinScreen> {
     );
   }
 
-  /// Centered icon and message used for the error state.
+  /// Centered icon and message for the error state.
   Widget _messageState(ThemeData theme, IconData icon, String message) {
     return Center(
       child: Padding(
@@ -242,7 +226,7 @@ class _InsulinScreenState extends State<InsulinScreen> {
     );
   }
 
-  /// Friendly empty state with a hint depending on the search query.
+  /// Empty state with a hint.
   Widget _emptyState(ThemeData theme) {
     return Center(
       child: Padding(
@@ -274,15 +258,13 @@ class _InsulinScreenState extends State<InsulinScreen> {
   }
 }
 
-/// Formats a dose for display: whole numbers lose the decimal part.
-///
-/// Example: 10.0 becomes "10", while 10.5 stays "10.5".
+/// Formats a dose: whole numbers lose the decimal part.
 String _formatDose(double dose) {
   if (dose == dose.roundToDouble()) return dose.toInt().toString();
   return dose.toString();
 }
 
-/// Converts a stored "HH:mm" string into a 12-hour time (e.g. "2:30 PM").
+/// Converts "HH:mm" to a 12-hour time like "2:30 PM".
 String _formatTime(String time) {
   final parts = time.split(':');
   if (parts.length != 2) return time;
@@ -293,9 +275,7 @@ String _formatTime(String time) {
   return '$h12:${minute.toString().padLeft(2, '0')} $period';
 }
 
-/// Single insulin record shown as a tappable card in the list.
-///
-/// Displays the insulin name, dose/site chips and injection time.
+/// One insulin record shown as a tappable card.
 class _InsulinCard extends StatelessWidget {
   final InsulinEntity data;
   final VoidCallback onTap;
@@ -318,7 +298,7 @@ class _InsulinCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              // Rounded icon box on the left of the card.
+              // Rounded icon box on the left.
               Container(
                 width: 48,
                 height: 48,
@@ -333,12 +313,11 @@ class _InsulinCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 14),
-              // Name, dose/site chips and injection time.
+              // Name, chips and injection time.
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Insulin type name.
                     Text(
                       data.name,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -346,7 +325,7 @@ class _InsulinCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    // Small chips for dose and injection site.
+                    // Dose and site chips.
                     Row(
                       children: [
                         _chip(Icons.science, '${_formatDose(data.dose)} units'),
@@ -355,7 +334,7 @@ class _InsulinCard extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 6),
-                    // Injection time with a small clock icon.
+                    // Injection time with a clock icon.
                     Row(
                       children: [
                         Icon(
@@ -373,7 +352,7 @@ class _InsulinCard extends StatelessWidget {
                   ],
                 ),
               ),
-              // Green check mark showing the dose was logged.
+              // Check mark showing the dose was logged.
               Icon(
                 Icons.check_circle_outline,
                 color: AppColors.softGreen.withValues(alpha: 0.6),
@@ -385,7 +364,7 @@ class _InsulinCard extends StatelessWidget {
     );
   }
 
-  /// Small grey pill used to display dose/site information.
+  /// Small grey pill for dose/site info.
   Widget _chip(IconData icon, String text) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),

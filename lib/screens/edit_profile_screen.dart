@@ -1,9 +1,4 @@
 /// Edit Profile screen.
-///
-/// Reached from the Profile screen's "Edit Profile" option. Shows a form
-/// prefilled with the user's current details (name, age, gender, height,
-/// weight, diabetes type and emergency contact). On save the changes are
-/// written back to Firestore via the [FirestoreService].
 
 library;
 
@@ -13,9 +8,9 @@ import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
 import '../theme/app_theme.dart';
 
-/// Form screen for editing the user's profile information.
+/// Form for editing the user's profile.
 class EditProfileScreen extends StatefulWidget {
-  /// The currently stored profile used to prefill the form.
+  /// The current profile used to prefill the form.
   final UserProfile profile;
 
   const EditProfileScreen({super.key, required this.profile});
@@ -28,7 +23,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   /// Validates the form before saving.
   final _formKey = GlobalKey<FormState>();
 
-  /// Controllers for every editable text field.
+  /// Controllers for all the editable fields.
   final _nameController = TextEditingController();
   final _ageController = TextEditingController();
   final _heightController = TextEditingController();
@@ -36,11 +31,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _emergencyNameController = TextEditingController();
   final _emergencyPhoneController = TextEditingController();
 
-  /// Selected values for the gender and diabetes type dropdowns.
+  /// Selected gender and diabetes type.
   String _gender = 'Male';
   String _diabetesType = 'Type 1';
 
-  /// Disables the button and shows a spinner while saving.
+  /// Shows a spinner while saving.
   bool _isLoading = false;
   final _firestoreService = FirestoreService();
   final _authService = AuthService();
@@ -57,7 +52,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
-    // Prefill every field with the current profile values.
+    // Prefill the fields with the current values.
     final p = widget.profile;
     _nameController.text = p.fullName.trim();
     if (p.age != null) _ageController.text = p.age.toString();
@@ -83,11 +78,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   /// Saves the edited profile back to Firestore.
-  ///
-  /// Called when the Save button is pressed. Validates the form, builds
-  /// an updated [UserProfile] and writes it with
-  /// [FirestoreService.updateUserProfile]. Pops back and shows a
-  /// success/error snackbar.
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
@@ -142,7 +132,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Screen header with an edit icon and a short description.
+              // Header with an edit icon and description.
               Center(
                 child: Column(
                   children: [
@@ -178,8 +168,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 28),
 
-              // Section 1: personal details (name, age/gender, height/weight,
-              // diabetes type) with validation rules.
+              // Personal details with validation.
               Text(
                 'Personal Details',
                 style: Theme.of(context).textTheme.titleLarge,
@@ -284,7 +273,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               const Divider(),
               const SizedBox(height: 12),
 
-              // Section 2: emergency contact details shown on the SOS sheet.
+              // Emergency contact details.
               Text(
                 'Emergency Contact',
                 style: Theme.of(context).textTheme.titleLarge,
@@ -318,7 +307,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               const SizedBox(height: 28),
 
-              // Full-width save button; shows a spinner while saving.
+              // Save button with a loading spinner.
               SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -347,8 +336,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  /// Builds a standard text field with a label, prefix icon and optional
-  /// validator, reused for every input on this screen.
+  /// Standard text field with a label and icon.
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,

@@ -1,36 +1,25 @@
-/// Entity representing a single blood sugar (glucose) reading.
-///
-/// This model maps directly to the `glucose_records` table in the local
-/// FloorDB database. It exists so the app can store and read blood sugar
-/// values offline as typed objects. It is used by the blood sugar screens
-/// (dashboard, history, reports) and their DAOs/repository.
-
+/// A blood sugar (glucose) reading saved in the glucose_records table.
 library;
 
 import 'package:floor/floor.dart';
 
-/// A single glucose reading stored in the `glucose_records` table.
-///
-/// When a user taps the "Add Blood Sugar" button a new [GlucoseEntity]
-/// is created and saved through the DAO.
+/// One glucose reading row in the database.
 @Entity(tableName: 'glucose_records')
 class GlucoseEntity {
-  /// Auto-generated primary key assigned by the database (null until saved).
+  /// Auto-generated database id (null until saved).
   @PrimaryKey(autoGenerate: true)
   final int? id;
 
-  /// Blood sugar value in mg/dL. The main measured value of the record.
+  /// Blood sugar value in mg/dL.
   final double level;
 
-  /// When the reading was taken relative to food.
-  /// One of: fasting, before meal, after meal.
+  /// When it was taken: fasting, before or after a meal.
   final String mealContext;
 
-  /// Optional user note attached to the reading.
+  /// Optional note.
   final String notes;
 
-  /// Milliseconds since epoch when the reading was recorded.
-  /// Used for ordering records by date and for chart display.
+  /// When the reading was taken (ms since epoch).
   final int timestamp;
 
   GlucoseEntity({

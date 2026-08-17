@@ -1,19 +1,4 @@
-/// NotificationService - the brain of all local notifications.
-///
-/// This class is responsible for everything related to notifications:
-///   * Initializing the flutter_local_notifications plugin and timezones.
-///   * Asking the user for notification permission.
-///   * Scheduling reminders for medications and insulin records.
-///   * Cancelling reminders when records are deleted.
-///   * Remembering the user's notification settings (enabled, sound,
-///     vibration) using shared_preferences.
-///
-/// The class is used as a singleton: call
-/// `NotificationService.instance` anywhere in the app to get the same
-/// object. The reminder functions are called from the add/edit screens
-/// (after saving a record) and from the delete flows (after deleting a
-/// record).
-
+/// Handles all local notifications: reminders for meds and insulin.
 library;
 
 import 'package:flutter/foundation.dart';
@@ -23,76 +8,58 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
-/// Singleton service that manages all local notification behaviour.
+/// Singleton service that handles all local notifications.
 class NotificationService {
-  /// The one shared instance of the service used across the whole app.
+  /// The one shared instance used across the whole app.
   static final NotificationService instance = NotificationService._();
 
-  /// Private constructor (see [instance] for how the service is used).
+  /// Private constructor, use [instance] instead.
   NotificationService._();
 
-  /// The plugin object provided by the flutter_local_notifications package.
+  /// The flutter_local_notifications plugin.
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
 
-  /// Offset added to insulin notification ids so they never clash with
-  /// medication ids (both database tables start counting at 1).
+  /// Offset for insulin ids so they never clash with medication ids.
   static const int _insulinIdOffset = 100000;
 
-  // Cached setting values. They are loaded from shared_preferences the
-  // first time they are needed, then kept in memory for speed.
+  // Cached settings, loaded once from shared_preferences.
   bool _enabled = true;
   bool _sound = true;
   bool _vibration = true;
   bool _settingsLoaded = false;
 
-  /// SharedPreferences keys used to persist the notification settings.
+  /// SharedPreferences keys for the settings.
   static const String _enabledKey = 'notifications_enabled';
   static const String _soundKey = 'notifications_sound';
   static const String _vibrationKey = 'notifications_vibration';
 
-  // ------------------------------------------------------------------
-  // Notification id helpers
-  // ------------------------------------------------------------------
+  // --- Notification id helpers ---
 
-  /// Returns the notification id used for a medication record.
-  ///
-  /// The database id is used directly. Called when scheduling a
-  /// medication reminder or cancelling it on delete.
+  /// Notification id for a medication record (its database id).
   static int medicationNotificationId(int recordId) => recordId;
 
-  /// Returns the notification id used for an insulin record.
-  ///
-  /// The [_insulinIdOffset] is added so insulin notifications never
-  /// overwrite medication notifications with the same database id.
+  /// Notification id for an insulin record (database id + offset).
   static int insulinNotificationId(int recordId) => _insulinIdOffset + recordId;
 
-  
   // Initialization
-  
 
-  /// Initializes timezones and the notification plugin.
-  ///
-  /// Called once from `main()` before the app starts. Sets up the local
-  /// timezone (so reminders fire at the correct local time) and tells
-  /// the plugin which icon/channel settings to use.
+  /// Sets up timezones and the notification plugin. Called once at startup.
   Future<void> initializeNotifications() async {
     try {
-      // Load the user's saved settings (enabled, sound, vibration).
+      // Load the saved settings.
       await _loadSettings();
 
-      // Initialize the timezone database (needed to schedule times).
+      // Set up timezones so reminders fire at the right local time.
       tzdata.initializeTimeZones();
-      // Reminders are scheduled in UTC. Because the next-occurrence times
-      // are computed from the device's local clock (see _nextOccurrence),
-      // the notifications still fire at the correct local moment without
-      // depending on any native timezone plugin.
+      // We schedule in UTC but build times from the device's local clock,
+      // so reminders still fire at the correct local moment.
       tz.setLocalLocation(tz.UTC);
 
-      // Plugin settings for Android (uses the launcher icon) and iOS.
+      // Plugin settings for Android and iOS.
       const initializationSettings = InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-        // Permission is requested manually, not automatically.
+        // Permission is asked for manually, not automatically.
         iOS: DarwinInitializationSettings(
           requestAlertPermission: false,
           requestBadgePermission: false,
@@ -101,28 +68,21 @@ class NotificationService {
       );
       await _plugin.initialize(settings: initializationSettings);
     } catch (_) {
-      // If initialization fails the app must keep working without
-      // notifications, so the error is simply swallowed here.
+      // If setup fails, just keep running without notifications.
     }
   }
 
-  /// Asks the user for notification permission (Android 13+, iOS).
-  ///
-  /// Shows the system permission dialog. Returns true when the user
-  /// granted permission, false otherwise. On Android 12 and older the
-  /// permission is granted automatically, so true is returned. On
-  /// platforms that do not need a permission dialog (desktop/web), true
-  /// is returned so the flow never blocks.
+  /// Asks for notification permission. Returns true when granted.
   Future<bool> requestPermissions() async {
     try {
       if (defaultTargetPlatform == TargetPlatform.android) {
-        // Android 13+ needs the POST_NOTIFICATIONS runtime permission.
+        // Android 13+ needs this runtime permission.
         final granted = await _plugin
             .resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin
             >()
             ?.requestNotificationsPermission();
-        // Older Android versions return null and are always allowed.
+        // Older Android returns null, which means allowed.
         return granted ?? true;
       }
       if (defaultTargetPlatform == TargetPlatform.iOS) {
@@ -134,19 +94,14 @@ class NotificationService {
         return granted ?? false;
       }
     } catch (_) {
-      // Any error means we could not ask; treat as denied.
+      // If asking fails, treat it as denied.
       return false;
     }
-    // Desktop and web do not need a button-driven permission request.
+    // Desktop and web don't need this, just allow it.
     return true;
   }
 
-  /// Requests permission on the first launch of the app.
-  ///
-  /// The permission dialog is only shown once (a shared_preferences flag
-  /// remembers that it was already shown). If the user denies the
-  /// request, a helpful dialog explains that medication reminders need
-  /// notification permission.
+  /// Asks for permission on the first launch (only once).
   Future<void> handleFirstLaunchPermission(BuildContext context) async {
     const requestedKey = 'notifications_permission_requested';
     const messageShownKey = 'notifications_permission_message_shown';
@@ -157,19 +112,18 @@ class NotificationService {
         const Duration(seconds: 3),
       );
     } catch (_) {
-      // If preferences cannot be read (e.g. inside a test) the app must
-      // continue without asking for permission.
+      // If prefs fail (e.g. in tests), skip asking.
       return;
     }
 
-    // Only request the permission on the very first launch.
+    // Only ask on the very first launch.
     if (prefs.getBool(requestedKey) ?? false) return;
     await prefs.setBool(requestedKey, true);
 
     final granted = await requestPermissions();
     if (granted) return;
 
-    // Show the helpful explanation dialog only once.
+    // Show the help dialog only once too.
     if (prefs.getBool(messageShownKey) ?? false) return;
     await prefs.setBool(messageShownKey, true);
     if (!context.mounted) return;
@@ -192,14 +146,9 @@ class NotificationService {
     );
   }
 
-  
   // Settings (enable / sound / vibration)
-  
 
-  /// Loads the saved settings from shared_preferences once.
-  ///
-  /// Called by [initializeNotifications] and lazily by the getters so
-  /// the toggles always show the correct state.
+  /// Loads saved settings from shared_preferences (once).
   Future<void> _loadSettings() async {
     if (_settingsLoaded) return;
     try {
@@ -211,33 +160,29 @@ class NotificationService {
       _vibration = prefs.getBool(_vibrationKey) ?? true;
       _settingsLoaded = true;
     } catch (_) {
-      // Keep the default (all on) when prefs are unavailable.
+      // Fall back to defaults (all on) if prefs fail.
     }
   }
 
-  /// Returns true when notifications are currently enabled.
+  /// True when notifications are enabled.
   Future<bool> isEnabled() async {
     await _loadSettings();
     return _enabled;
   }
 
-  /// Returns true when reminder sounds are enabled.
+  /// True when reminder sounds are on.
   Future<bool> isSoundEnabled() async {
     await _loadSettings();
     return _sound;
   }
 
-  /// Returns true when reminder vibrations are enabled.
+  /// True when reminder vibrations are on.
   Future<bool> isVibrationEnabled() async {
     await _loadSettings();
     return _vibration;
   }
 
-  /// Turns notifications on or off.
-  ///
-  /// When turned off, every pending notification is cancelled so no
-  /// future reminders fire. When turned on again, the user's existing
-  /// records are re-scheduled by the settings screen.
+  /// Turns notifications on or off. Off also cancels all pending ones.
   Future<void> setEnabled(bool value) async {
     await _loadSettings();
     _enabled = value;
@@ -247,12 +192,12 @@ class NotificationService {
       );
       await prefs.setBool(_enabledKey, value);
     } catch (_) {
-      // Persistence failure should not break the toggle.
+      // If saving fails, don't break the toggle.
     }
     if (!value) await cancelAllNotifications();
   }
 
-  /// Turns the reminder sound on or off (affects future reminders).
+  /// Turns reminder sound on or off.
   Future<void> setSoundEnabled(bool value) async {
     await _loadSettings();
     _sound = value;
@@ -262,11 +207,11 @@ class NotificationService {
       );
       await prefs.setBool(_soundKey, value);
     } catch (_) {
-      // Persistence failure should not break the toggle.
+      // If saving fails, don't break the toggle.
     }
   }
 
-  /// Turns the reminder vibration on or off (affects future reminders).
+  /// Turns reminder vibration on or off.
   Future<void> setVibrationEnabled(bool value) async {
     await _loadSettings();
     _vibration = value;
@@ -276,18 +221,13 @@ class NotificationService {
       );
       await prefs.setBool(_vibrationKey, value);
     } catch (_) {
-      // Persistence failure should not break the toggle.
+      // If saving fails, don't break the toggle.
     }
   }
 
-  
   // Notification details
-  
 
-  /// Builds the notification details used for every reminder.
-  ///
-  /// A high importance/priority channel makes the reminder appear
-  /// prominently. Sound and vibration follow the user's settings.
+  /// Builds the notification details for every reminder.
   NotificationDetails _notificationDetails() {
     return NotificationDetails(
       android: AndroidNotificationDetails(
@@ -307,14 +247,7 @@ class NotificationService {
     );
   }
 
-  /// Computes the next occurrence of an "HH:mm" time in the device's
-  /// local timezone, expressed as a UTC `TZDateTime`.
-  ///
-  /// Using the device's own clock (`DateTime.now()`) means the correct
-  /// local time is used even without a native timezone plugin. The time
-  /// is converted to UTC because `tz.local` is UTC. If the time has
-  /// already passed today, tomorrow is used instead. Returns null when
-  /// the time string is invalid.
+  /// Next "HH:mm" time as a UTC TZDateTime, or null if invalid.
   tz.TZDateTime? _nextOccurrence(String hhmm) {
     final parts = hhmm.split(':');
     if (parts.length != 2) return null;
@@ -322,7 +255,7 @@ class NotificationService {
     final minute = int.tryParse(parts[1]);
     if (hour == null || minute == null) return null;
 
-    // Build the next occurrence using the device's local clock.
+    // Build it from the device's local clock.
     final now = DateTime.now();
     var scheduled = DateTime(
       now.year,
@@ -331,11 +264,11 @@ class NotificationService {
       hour,
       minute,
     );
-    // If the time already passed today, schedule it for tomorrow.
+    // If it already passed today, use tomorrow.
     if (!scheduled.isAfter(now)) {
       scheduled = scheduled.add(const Duration(days: 1));
     }
-    // Convert the local moment to UTC for the timezone package.
+    // Convert to UTC for the timezone package.
     final utc = scheduled.toUtc();
     return tz.TZDateTime(
       tz.local,
@@ -348,18 +281,9 @@ class NotificationService {
     );
   }
 
-  
   // Scheduling reminders
-  
 
   /// Schedules the reminder for one medication.
-  ///
-  /// Called automatically after a medication is added or edited. When
-  /// [repeatDaily] is true the notification repeats every day at
-  /// [reminderTime] (an "HH:mm" string); otherwise it fires only once.
-  /// When the course has already ended ([endDate] is in the past)
-  /// nothing is scheduled. Returns true when the reminder was scheduled
-  /// successfully.
   Future<bool> scheduleMedicationReminder(
     int recordId,
     String name,
@@ -368,12 +292,12 @@ class NotificationService {
     bool repeatDaily = true,
   }) async {
     await _loadSettings();
-    // Never schedule when the user disabled notifications.
+    // Don't schedule if notifications are off.
     if (!_enabled) return false;
-    // Scheduled notifications are not supported on the web.
+    // Web doesn't support scheduled notifications.
     if (kIsWeb) return false;
 
-    // Skip medications whose course has already finished.
+    // Skip meds whose course already ended.
     if (endDate != null) {
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day);
@@ -382,7 +306,7 @@ class NotificationService {
     }
 
     final scheduled = _nextOccurrence(reminderTime);
-    if (scheduled == null) return false; // invalid reminder time.
+    if (scheduled == null) return false; // invalid time, nothing to schedule.
 
     try {
       await _plugin.zonedSchedule(
@@ -392,23 +316,17 @@ class NotificationService {
         scheduledDate: scheduled,
         notificationDetails: _notificationDetails(),
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        // Repeat every day at the same time (not weekly). When daily
-        // repeat is off the reminder is a one-time notification.
+        // Repeats daily, or just once if repeatDaily is off.
         matchDateTimeComponents: repeatDaily ? DateTimeComponents.time : null,
       );
       return true;
     } catch (_) {
-      // Scheduling failure must never crash the app.
+      // A failed schedule must not crash the app.
       return false;
     }
   }
 
   /// Schedules the reminder for one insulin record.
-  ///
-  /// Called automatically after an insulin record is added or edited.
-  /// When [repeatDaily] is true the notification repeats every day at
-  /// [time] (an "HH:mm" string); otherwise it fires only once. Returns
-  /// true when the reminder was scheduled successfully.
   Future<bool> scheduleInsulinReminder(
     int recordId,
     String name,
@@ -416,13 +334,13 @@ class NotificationService {
     bool repeatDaily = true,
   }) async {
     await _loadSettings();
-    // Never schedule when the user disabled notifications.
+    // Don't schedule if notifications are off.
     if (!_enabled) return false;
-    // Scheduled notifications are not supported on the web.
+    // Web doesn't support scheduled notifications.
     if (kIsWeb) return false;
 
     final scheduled = _nextOccurrence(time);
-    if (scheduled == null) return false; // invalid reminder time.
+    if (scheduled == null) return false; // invalid time, nothing to schedule.
 
     try {
       await _plugin.zonedSchedule(
@@ -432,54 +350,39 @@ class NotificationService {
         scheduledDate: scheduled,
         notificationDetails: _notificationDetails(),
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        // Repeat every day at the same time (not weekly). When daily
-        // repeat is off the reminder is a one-time notification.
+        // Repeats daily, or just once if repeatDaily is off.
         matchDateTimeComponents: repeatDaily ? DateTimeComponents.time : null,
       );
       return true;
     } catch (_) {
-      // Scheduling failure must never crash the app.
+      // A failed schedule must not crash the app.
       return false;
     }
   }
 
-  
   // Cancelling notifications
-  
 
-  /// Cancels one scheduled notification by its notification id.
-  ///
-  /// Called when a medication or insulin record is deleted. Use the
-  /// [medicationNotificationId] / [insulinNotificationId] helpers to
-  /// get the correct id for a record.
+  /// Cancels one notification by id (used when a record is deleted).
   Future<void> cancelNotification(int notificationId) async {
     try {
       await _plugin.cancel(id: notificationId);
     } catch (_) {
-      // Cancelling a non-existent notification is harmless.
+      // Cancelling one that's not there is fine.
     }
   }
 
   /// Cancels every pending notification.
-  ///
-  /// Called when the user turns notifications off. Also useful as a
-  /// cleanup for future features.
   Future<void> cancelAllNotifications() async {
     try {
       await _plugin.cancelAll();
     } catch (_) {
-      // No pending notifications is a valid state.
+      // Nothing pending is fine too.
     }
   }
 
-  
   // Instant notifications
-  
 
-  /// Shows an instant notification immediately (no scheduling).
-  ///
-  /// Useful for immediate feedback (e.g. a test button). The id must be
-  /// unique for every notification you want to show at the same time.
+  /// Shows a notification right away (no scheduling).
   Future<void> showInstantNotification({
     required int id,
     required String title,
@@ -495,7 +398,7 @@ class NotificationService {
         notificationDetails: _notificationDetails(),
       );
     } catch (_) {
-      // A failed instant notification must not crash the app.
+      // Don't crash if it fails.
     }
   }
 }

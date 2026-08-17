@@ -1,24 +1,16 @@
-/// Card showing the single next upcoming reminder.
-///
-/// Shown at the top of the dashboard tab. Displays whether the reminder
-/// is for medication or insulin and the time it will fire. When no
-/// reminder exists (no records with reminders enabled) the message
-/// "No upcoming reminders." is shown instead.
+/// Shows the next upcoming reminder (or a "no reminders" message).
 
 library;
 
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
-/// The type of the next reminder as returned by the dashboard logic.
-///
-/// [type] is "Medication" or "Insulin", [name] is the record name and
-/// [time] is the 12-hour time when the reminder fires.
+/// Holds the next reminder info: type, name and time.
 typedef NextReminderInfo = ({String type, String name, String time});
 
-/// Card that shows the next upcoming reminder (or an empty message).
+/// Card showing the next upcoming reminder (or an empty message).
 class NextReminderCard extends StatelessWidget {
-  /// The computed next reminder, or null when there is none.
+  /// The next reminder, or null if there is none.
   final NextReminderInfo? reminder;
 
   const NextReminderCard({super.key, required this.reminder});
@@ -42,7 +34,7 @@ class NextReminderCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            // Title and type/name text.
+            // Title and reminder info.
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

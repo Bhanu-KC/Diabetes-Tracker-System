@@ -1,11 +1,4 @@
-/// Add/Edit Medication screen.
-///
-/// Reached from the Medication dashboard floating action button or when
-/// a user taps the edit button on the medication details screen. Lets
-/// the user add a routine medication with name, dosage, frequency,
-/// reminder time, start/end dates and notes. Saves to the local FloorDB
-/// via the [MedicationRepository]. Passing
-/// [AddMedicationScreen.existing] switches the screen to edit mode.
+/// Add or edit a medication.
 
 library;
 
@@ -15,9 +8,9 @@ import '../database/repositories/medication_repository.dart';
 import '../services/notification_service.dart';
 import '../theme/app_theme.dart';
 
-/// Form screen to add a new medication or edit an existing one.
+/// Form to add a new medication or edit an existing one.
 class AddMedicationScreen extends StatefulWidget {
-  /// When provided, the form is prefilled and saving updates this record.
+  /// Prefills the form and updates this record on save.
   final MedicationEntity? existing;
 
   const AddMedicationScreen({super.key, this.existing});
@@ -33,29 +26,29 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
   final _dosageController = TextEditingController();
   final _notesController = TextEditingController();
 
-  /// Selected frequency from the dropdown.
+  /// Selected frequency.
   String _frequency = 'Once daily';
 
-  /// Reminder time chosen for taking the medication.
+  /// Reminder time for taking the medication.
   TimeOfDay _reminderTime = const TimeOfDay(hour: 8, minute: 0);
 
-  /// Whether a reminder notification is scheduled for this medication.
+  /// Whether a reminder is scheduled.
   bool _reminderEnabled = true;
 
-  /// Whether the reminder repeats every day (or fires only once).
+  /// Whether the reminder repeats daily.
   bool _repeatDaily = true;
 
-  /// Start and end dates of the medication course.
+  /// Start and end dates of the course.
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now().add(const Duration(days: 30));
 
-  /// Disables the button and shows a spinner while saving.
+  /// Shows a spinner while saving.
   bool _isSaving = false;
 
-  /// True when this screen is editing an existing record.
+  /// True when editing an existing record.
   bool get _isEditing => widget.existing != null;
 
-  /// The frequencies the user can choose from.
+  /// Frequencies the user can pick from.
   final _frequencies = [
     'Once daily',
     'Twice daily',
@@ -69,7 +62,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
   @override
   void initState() {
     super.initState();
-    // Prefill the form with the existing record's values when editing.
+    // Prefill the form when editing.
     final existing = widget.existing;
     if (existing != null) {
       _nameController.text = existing.name;
@@ -77,7 +70,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
       if (_frequencies.contains(existing.frequency)) {
         _frequency = existing.frequency;
       }
-      // Parse the "HH:mm" reminder string back into a TimeOfDay.
+      // Parse "HH:mm" back into a TimeOfDay.
       final parts = existing.reminderTime.split(':');
       if (parts.length == 2) {
         _reminderTime = TimeOfDay(
@@ -101,7 +94,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
     super.dispose();
   }
 
-  /// Opens the system time picker for the reminder time.
+  /// Opens the time picker.
   Future<void> _pickTime() async {
     final picked = await showTimePicker(
       context: context,
@@ -110,10 +103,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
     if (picked != null) setState(() => _reminderTime = picked);
   }
 
-  /// Opens the system date picker for the start or end date.
-  ///
-  /// [isStart] selects which date is being picked: true for the start
-  /// date, false for the end date.
+  /// Opens the date picker for the start or end date.
   Future<void> _pickDate(bool isStart) async {
     final picked = await showDatePicker(
       context: context,
@@ -133,15 +123,9 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
   }
 
   /// Saves the medication to the local database.
-  ///
-  /// Called when the save button is pressed. Converts the start/end
-  /// dates and reminder time into storable numbers/strings, inserts a
-  /// new record (or updates the existing one when editing), then shows
-  /// a success/error snackbar and pops back.
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
-    // A course must never end before it starts - reject invalid dates
-    // with a clear message instead of saving bad data.
+    // Reject an end date that comes before the start date.
     if (_endDate.isBefore(_startDate)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -153,7 +137,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
     }
     setState(() => _isSaving = true);
     try {
-      // Convert start/end dates to midnight timestamps (day precision).
+      // Convert dates to midnight timestamps.
       final startMillis = DateTime(
         _startDate.year,
         _startDate.month,
@@ -164,7 +148,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
         _endDate.month,
         _endDate.day,
       ).millisecondsSinceEpoch;
-      // Format the reminder time as "HH:mm" for storage.
+      // Format the reminder time as "HH:mm".
       final reminderTime =
           '${_reminderTime.hour.toString().padLeft(2, '0')}:'
           '${_reminderTime.minute.toString().padLeft(2, '0')}';
@@ -202,8 +186,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
           ),
         );
       }
-      // When reminders are enabled schedule (or reschedule) the daily
-      // notification. When disabled, stop any previously scheduled one.
+      // Schedule the reminder, or cancel it when disabled.
       if (_reminderEnabled) {
         await NotificationService.instance.scheduleMedicationReminder(
           medicationId,
@@ -257,11 +240,11 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Screen heading with the medication icon.
+              // Heading with the medication icon.
               Center(
                 child: Column(
                   children: [
-                    // Circular icon marking the medication section.
+                    // Icon marking the medication section.
                     Container(
                       width: 72,
                       height: 72,
@@ -316,7 +299,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                     v == null || v.isEmpty ? 'Dosage is required' : null,
               ),
               const SizedBox(height: 14),
-              // Dropdown to choose how often the medicine is taken.
+              // How often the medicine is taken.
               DropdownButtonFormField<String>(
                 initialValue: _frequency,
                 decoration: const InputDecoration(
@@ -330,7 +313,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                     setState(() => _frequency = v ?? 'Once daily'),
               ),
               const SizedBox(height: 14),
-              // Tappable field that opens the reminder time picker.
+              // Opens the reminder time picker.
               InkWell(
                 onTap: _pickTime,
                 child: InputDecorator(
@@ -345,7 +328,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              // Master switch that turns this medication's reminder on/off.
+              // Turns this medication's reminder on or off.
               Card(
                 child: Column(
                   children: [
@@ -363,7 +346,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                           setState(() => _reminderEnabled = v),
                     ),
                     const Divider(height: 1),
-                    // Whether the reminder repeats every day.
+                    // Whether the reminder repeats daily.
                     SwitchListTile(
                       secondary: const Icon(
                         Icons.repeat,
@@ -382,7 +365,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                 ),
               ),
               const SizedBox(height: 14),
-              // Start and end date pickers side by side.
+              // Start and end date pickers.
               Row(
                 children: [
                   Expanded(
@@ -417,7 +400,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                 ],
               ),
               const SizedBox(height: 14),
-              // Optional multi-line notes field.
+              // Optional notes field.
               TextFormField(
                 controller: _notesController,
                 maxLines: 3,
@@ -431,7 +414,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                 ),
               ),
               const SizedBox(height: 28),
-              // Full-width save button with a loading spinner.
+              // Save button with a loading spinner.
               SizedBox(
                 width: double.infinity,
                 height: 50,

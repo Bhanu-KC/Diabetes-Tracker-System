@@ -16,16 +16,10 @@ import 'screens/meal_screen.dart';
 import 'screens/medication_dashboard.dart';
 import 'screens/reports_screen.dart';
 
-/// Global navigator key used to reach the root navigator from anywhere.
-///
-/// Needed so the first-launch notification permission dialog (requested
-/// from `main()`) can be shown on top of whatever screen is visible.
+/// Lets code outside the widget tree (like main.dart) reach the navigator.
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-/// Top-level widget of the app.
-///
-/// It configures the application title, the light theme, and the route
-/// table that tells Flutter which screen to show for each named route.
+/// The root widget — sets up the theme and all screen routes.
 class DiabetesApp extends StatelessWidget {
   const DiabetesApp({super.key});
 
@@ -33,22 +27,21 @@ class DiabetesApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Diabetes Tracking System',
-      // App-wide colour and typography theme (similar to a stylesheet).
+      // App-wide theme (like a stylesheet).
       theme: AppTheme.lightTheme,
-      // Hides the "DEBUG" banner shown in the corner.
+      // Hides the "DEBUG" banner.
       debugShowCheckedModeBanner: false,
-      // Global key so code outside the widget tree (e.g. the first-launch
-      // permission dialog in main.dart) can access the root navigator.
+      // So code outside the widget tree can reach the root navigator.
       navigatorKey: navigatorKey,
-      // The splash screen is shown first when the app opens.
+      // The splash screen shows first when the app opens.
       initialRoute: '/',
       routes: {
-        // Authentication screens.
+        // Auth screens.
         '/': (context) => const SplashScreen(),
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/forgot-password': (context) => const ForgotPasswordScreen(),
-        // Main screens shown after login.
+        // Main screens (after login).
         '/home': (context) => const HomeScreen(),
         '/profile': (context) => const ProfileScreen(),
         '/history': (context) => const HistoryScreen(),
@@ -61,7 +54,7 @@ class DiabetesApp extends StatelessWidget {
         // Insulin screens.
         '/insulin': (context) => const InsulinScreen(),
         '/add-insulin': (context) => const AddInsulinScreen(),
-        // Meal tracking screens.
+        // Meal screens.
         '/meal-tracker': (context) => const MealScreen(),
         '/add-meal': (context) => const AddMealScreen(),
       },

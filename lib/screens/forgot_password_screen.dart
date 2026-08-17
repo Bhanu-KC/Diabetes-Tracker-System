@@ -1,8 +1,4 @@
-/// Forgot password screen for requesting a password reset email.
-///
-/// Reached from the Login screen via the "Forgot Password?" link. The
-/// user enters their registered email and Firebase sends a reset link
-/// to that address. On success the screen pops back to Login.
+/// Forgot password screen for reset emails.
 
 library;
 
@@ -10,7 +6,7 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 
-/// The screen that lets the user request a password reset email.
+/// Lets the user request a password reset email.
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
 
@@ -19,12 +15,12 @@ class ForgotPasswordScreen extends StatefulWidget {
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
-  /// Validates the email field before sending the request.
+  /// Validates the email field.
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _authService = AuthService();
 
-  /// Disables the button and shows a spinner while sending.
+  /// Shows a spinner while sending.
   bool _isLoading = false;
 
   @override
@@ -33,11 +29,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
-  /// Sends a password reset link to the entered email address.
-  ///
-  /// Called when the "Send Reset Link" button is pressed or the done
-  /// key fires. Uses [AuthService.forgotPassword] (Firebase). Shows a
-  /// success snackbar and closes the screen, or an error snackbar.
+  /// Sends a password reset link to the email.
   Future<void> _sendResetLink() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
@@ -78,10 +70,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 12),
-              // Lock icon heading illustration for the reset screen.
+              // Lock icon at the top.
               Icon(Icons.lock_reset, size: 72, color: AppColors.primaryBlue),
               const SizedBox(height: 16),
-              // Title of the screen.
               Text(
                 'Reset your password',
                 textAlign: TextAlign.center,
@@ -121,7 +112,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 },
               ),
               const SizedBox(height: 24),
-              // Full-width button that sends the password reset email.
+              // Button that sends the reset email.
               SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -143,7 +134,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              // Link that returns to the login screen.
+              // Link back to the login screen.
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: const Text('Back to Login'),

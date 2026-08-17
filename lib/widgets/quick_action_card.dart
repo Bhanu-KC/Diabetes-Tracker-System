@@ -1,8 +1,4 @@
-/// Tappable shortcut card that navigates to a major feature.
-///
-/// Used on the dashboard tab for the "Quick Actions" section (Blood
-/// Sugar, Medication, Insulin, Meals). Each card shows a feature icon
-/// and a label, and calls [onTap] when tapped.
+/// A shortcut card that opens a main feature when tapped.
 
 library;
 
@@ -19,7 +15,7 @@ class QuickActionCard extends StatelessWidget {
   /// Accent colour of the icon.
   final Color color;
 
-  /// Called when the card is tapped (usually navigates to a screen).
+  /// Called when the card is tapped.
   final VoidCallback onTap;
 
   const QuickActionCard({
@@ -43,7 +39,6 @@ class QuickActionCard extends StatelessWidget {
               // Feature icon in its accent colour.
               Icon(icon, color: color, size: 28),
               const SizedBox(height: 6),
-              // Shortcut label.
               Text(
                 label,
                 style: Theme.of(

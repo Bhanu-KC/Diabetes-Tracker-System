@@ -1,8 +1,4 @@
-/// Reusable bottom navigation item (icon and label).
-///
-/// Used by the home screen shell for its four tabs: Home, History,
-/// Reports and Profile. The selected tab shows a filled icon and a
-/// bolder label in the brand colour, while unselected tabs are grey.
+/// One item of the bottom navigation bar (icon + label).
 
 library;
 
@@ -11,14 +7,13 @@ import '../theme/app_theme.dart';
 
 /// One tappable item of the bottom navigation bar.
 class NavItem extends StatelessWidget {
-  /// The icon shown (selected and unselected variants are chosen by the
-  /// caller, e.g. `Icons.home` vs `Icons.home_outlined`).
+  /// The icon (filled or outlined — the caller picks).
   final IconData icon;
 
   /// The short label under the icon, e.g. "Home".
   final String label;
 
-  /// True when this item is the currently selected tab.
+  /// True when this tab is currently selected.
   final bool isSelected;
 
   /// Called when the user taps the item to switch tabs.

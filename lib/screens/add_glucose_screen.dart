@@ -1,10 +1,4 @@
-/// Add/Edit Blood Sugar screen.
-///
-/// Reached from the dashboard quick actions or the history screen. Lets
-/// the user enter a glucose value, choose the reading type (fasting,
-/// before/after meal, bedtime), pick a date and time, and save it to the
-/// local FloorDB via the [GlucoseRepository]. The same screen is reused
-/// for editing by passing an optional [AddGlucoseScreen.existing] record.
+/// Add or edit a blood sugar reading.
 
 library;
 
@@ -13,10 +7,9 @@ import '../database/entities/glucose_entity.dart';
 import '../database/repositories/glucose_repository.dart';
 import '../theme/app_theme.dart';
 
-/// Form screen to add a new blood sugar reading or edit an existing one.
+/// Form to add a new blood sugar reading or edit an existing one.
 class AddGlucoseScreen extends StatefulWidget {
-  /// When provided, the form is prefilled and saving updates this record
-  /// instead of creating a new one.
+  /// Prefills the form and updates this record on save.
   final GlucoseEntity? existing;
 
   const AddGlucoseScreen({super.key, this.existing});
@@ -31,26 +24,26 @@ class _AddGlucoseScreenState extends State<AddGlucoseScreen> {
   final _valueController = TextEditingController();
   final _notesController = TextEditingController();
 
-  /// Selected reading type from the filter chips.
+  /// Selected reading type.
   String _readingType = 'Fasting';
 
-  /// Date and time chosen by the user for the reading.
+  /// Chosen date and time for the reading.
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
 
-  /// Disables the button and shows a spinner while saving.
+  /// Shows a spinner while saving.
   bool _isSaving = false;
 
-  /// The reading types the user can choose from.
+  /// Reading types the user can pick from.
   final _types = ['Fasting', 'Before Meal', 'After Meal', 'Bedtime'];
 
-  /// True when this screen is editing an existing record.
+  /// True when editing an existing record.
   bool get _isEditing => widget.existing != null;
 
   @override
   void initState() {
     super.initState();
-    // Prefill the form with the existing record's values when editing.
+    // Prefill the form when editing.
     final existing = widget.existing;
     if (existing != null) {
       final dateTime = DateTime.fromMillisecondsSinceEpoch(existing.timestamp);
@@ -71,7 +64,7 @@ class _AddGlucoseScreenState extends State<AddGlucoseScreen> {
     super.dispose();
   }
 
-  /// Opens the system date picker and stores the chosen date.
+  /// Opens the date picker.
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
       context: context,
@@ -82,7 +75,7 @@ class _AddGlucoseScreenState extends State<AddGlucoseScreen> {
     if (picked != null) setState(() => _selectedDate = picked);
   }
 
-  /// Opens the system time picker and stores the chosen time.
+  /// Opens the time picker.
   Future<void> _pickTime() async {
     final picked = await showTimePicker(
       context: context,
@@ -92,17 +85,12 @@ class _AddGlucoseScreenState extends State<AddGlucoseScreen> {
   }
 
   /// Saves the reading to the local database.
-  ///
-  /// Called when the save button is pressed. Combines the selected date
-  /// and time into a timestamp, then inserts a new record (or updates the
-  /// existing one when editing). Shows a success/error snackbar and pops
-  /// back to the previous screen.
   Future<void> _save() async {
-    // Stop here if the form fields do not pass validation.
+    // Stop if the form is invalid.
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isSaving = true);
     try {
-      // Combine the picked date and time into a single timestamp.
+      // Combine date and time into one timestamp.
       final timestamp = DateTime(
         _selectedDate.year,
         _selectedDate.month,
@@ -113,7 +101,7 @@ class _AddGlucoseScreenState extends State<AddGlucoseScreen> {
 
       final repo = await GlucoseRepository.getInstance();
       if (_isEditing) {
-        // Update the existing record, keeping its id.
+        // Update the existing record.
         await repo.update(
           GlucoseEntity(
             id: widget.existing!.id,
@@ -124,7 +112,7 @@ class _AddGlucoseScreenState extends State<AddGlucoseScreen> {
           ),
         );
       } else {
-        // Insert a brand new reading.
+        // Add a new reading.
         await repo.add(
           GlucoseEntity(
             level: double.parse(_valueController.text),
@@ -136,7 +124,7 @@ class _AddGlucoseScreenState extends State<AddGlucoseScreen> {
       }
       if (!mounted) return;
       Navigator.pop(context);
-      // Confirm the save to the user.
+      // Show a confirmation message.
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -176,11 +164,11 @@ class _AddGlucoseScreenState extends State<AddGlucoseScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Screen heading with the blood type icon.
+              // Heading with the blood type icon.
               Center(
                 child: Column(
                   children: [
-                    // Circular icon marking the blood sugar section.
+                    // Icon marking the blood sugar section.
                     Container(
                       width: 72,
                       height: 72,
@@ -212,7 +200,7 @@ class _AddGlucoseScreenState extends State<AddGlucoseScreen> {
                 ),
               ),
               const SizedBox(height: 28),
-              // Numeric field for the glucose value (validated 20-600).
+              // Glucose value, validated 20-600.
               TextFormField(
                 controller: _valueController,
                 keyboardType: TextInputType.number,
@@ -231,7 +219,7 @@ class _AddGlucoseScreenState extends State<AddGlucoseScreen> {
                 },
               ),
               const SizedBox(height: 18),
-              // Reading type selector (filter chips).
+              // Reading type as filter chips.
               Text('Reading Type', style: theme.textTheme.titleLarge),
               const SizedBox(height: 10),
               Wrap(
@@ -249,7 +237,7 @@ class _AddGlucoseScreenState extends State<AddGlucoseScreen> {
                 }).toList(),
               ),
               const SizedBox(height: 18),
-              // Date and time pickers side by side.
+              // Date and time pickers.
               Row(
                 children: [
                   Expanded(
@@ -282,7 +270,7 @@ class _AddGlucoseScreenState extends State<AddGlucoseScreen> {
                 ],
               ),
               const SizedBox(height: 18),
-              // Optional multi-line notes field.
+              // Optional notes field.
               TextFormField(
                 controller: _notesController,
                 maxLines: 3,
@@ -296,7 +284,7 @@ class _AddGlucoseScreenState extends State<AddGlucoseScreen> {
                 ),
               ),
               const SizedBox(height: 28),
-              // Full-width save button with a loading spinner.
+              // Save button with a loading spinner.
               SizedBox(
                 width: double.infinity,
                 height: 50,

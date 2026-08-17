@@ -1,10 +1,4 @@
-/// Add/Edit Meal screen.
-///
-/// Reached from the Meal Tracker screen floating action button or when a
-/// user taps an existing meal to edit it. Lets the user record what they
-/// ate: meal name, meal type (breakfast/lunch/dinner/snacks), calories,
-/// date and notes. Saves to the local FloorDB via the [MealRepository].
-/// Passing [AddMealScreen.existing] switches the screen to edit mode.
+/// Add or edit a meal.
 
 library;
 
@@ -13,9 +7,9 @@ import '../database/entities/meal_entity.dart';
 import '../database/repositories/meal_repository.dart';
 import '../theme/app_theme.dart';
 
-/// Form screen to add a new meal or edit an existing one.
+/// Form to add a new meal or edit an existing one.
 class AddMealScreen extends StatefulWidget {
-  /// When provided, the form is prefilled and saving updates this record.
+  /// Prefills the form and updates this record on save.
   final MealEntity? existing;
 
   const AddMealScreen({super.key, this.existing});
@@ -31,36 +25,35 @@ class _AddMealScreenState extends State<AddMealScreen> {
   final _caloriesController = TextEditingController();
   final _notesController = TextEditingController();
 
-  /// Selected meal type from the dropdown.
+  /// Selected meal type.
   String _mealType = 'Breakfast';
 
-  /// Date chosen by the user for the meal.
+  /// Chosen date for the meal.
   DateTime _date = DateTime.now();
 
-  /// Disables the button and shows a spinner while saving.
+  /// Shows a spinner while saving.
   bool _isSaving = false;
 
-  /// Keeps the original timestamp when editing so the meal's logged
-  /// date and time are preserved.
+  /// Keeps the original timestamp when editing.
   int? _originalTimestamp;
 
-  /// The meal types the user can choose from.
+  /// Meal types the user can pick from.
   final _mealTypes = ['Breakfast', 'Lunch', 'Dinner', 'Snacks'];
 
-  /// True when this screen is editing an existing record.
+  /// True when editing an existing record.
   bool get _isEditing => widget.existing != null;
 
   @override
   void initState() {
     super.initState();
-    // Prefill the form with the existing record's values when editing.
+    // Prefill the form when editing.
     final existing = widget.existing;
     if (existing != null) {
       _nameController.text = existing.name;
       if (_mealTypes.contains(existing.mealType)) {
         _mealType = existing.mealType;
       }
-      // Whole calorie values are shown without decimals (e.g. "450").
+      // Show whole calories without decimals.
       final calories = existing.calories;
       if (calories != null) {
         _caloriesController.text = calories == calories.roundToDouble()
@@ -81,7 +74,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
     super.dispose();
   }
 
-  /// Opens the system date picker and stores the chosen date.
+  /// Opens the date picker.
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
       context: context,
@@ -93,15 +86,11 @@ class _AddMealScreenState extends State<AddMealScreen> {
   }
 
   /// Saves the meal to the local database.
-  ///
-  /// Called when the save button is pressed. Inserts a new meal (or
-  /// updates the existing one when editing), then shows a success/error
-  /// snackbar and pops back to the previous screen.
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isSaving = true);
     try {
-      // Reuse the original timestamp when editing to keep the log order.
+      // Keep the original timestamp when editing.
       final timestamp =
           _originalTimestamp ?? DateTime.now().millisecondsSinceEpoch;
 
@@ -162,7 +151,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
       appBar: AppBar(
         title: Text(_isEditing ? 'Edit Meal' : 'Add Meal'),
         actions: [
-          // Cancel button that exits the form without saving.
+          // Cancel without saving.
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text(
@@ -179,11 +168,11 @@ class _AddMealScreenState extends State<AddMealScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Screen heading with the restaurant icon.
+              // Heading with the restaurant icon.
               Center(
                 child: Column(
                   children: [
-                    // Circular icon marking the meal section.
+                    // Icon marking the meal section.
                     Container(
                       width: 72,
                       height: 72,
@@ -215,7 +204,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
                 ),
               ),
               const SizedBox(height: 28),
-              // Name of the meal (e.g. Grilled chicken salad).
+              // Name of the meal.
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
@@ -227,7 +216,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
                     v == null || v.isEmpty ? 'Meal name is required' : null,
               ),
               const SizedBox(height: 14),
-              // Dropdown to choose which meal of the day this is.
+              // Which meal of the day this is.
               DropdownButtonFormField<String>(
                 initialValue: _mealType,
                 decoration: const InputDecoration(
@@ -240,7 +229,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
                 onChanged: (v) => setState(() => _mealType = v ?? 'Breakfast'),
               ),
               const SizedBox(height: 14),
-              // Numeric field for calories (must be a positive number).
+              // Calories, must be a positive number.
               TextFormField(
                 controller: _caloriesController,
                 keyboardType: TextInputType.number,
@@ -257,7 +246,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
                 },
               ),
               const SizedBox(height: 14),
-              // Tappable field that opens the date picker.
+              // Opens the date picker.
               InkWell(
                 onTap: _pickDate,
                 child: InputDecorator(
@@ -269,7 +258,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
                 ),
               ),
               const SizedBox(height: 14),
-              // Optional multi-line notes field.
+              // Optional notes field.
               TextFormField(
                 controller: _notesController,
                 maxLines: 3,
@@ -283,7 +272,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
                 ),
               ),
               const SizedBox(height: 28),
-              // Full-width save button with a loading spinner.
+              // Save button with a loading spinner.
               SizedBox(
                 width: double.infinity,
                 height: 50,

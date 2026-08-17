@@ -1,10 +1,4 @@
-/// Add/Edit Insulin screen.
-///
-/// Reached from the Insulin screen floating action button or when a user
-/// taps an existing insulin record to edit it. Lets the user log an
-/// insulin dose: name, dose in units, injection site, time and notes.
-/// Saves to the local FloorDB via the [InsulinRepository]. Passing
-/// [AddInsulinScreen.existing] switches the screen to edit mode.
+/// Add or edit an insulin dose.
 
 library;
 
@@ -14,9 +8,9 @@ import '../database/repositories/insulin_repository.dart';
 import '../services/notification_service.dart';
 import '../theme/app_theme.dart';
 
-/// Form screen to add a new insulin dose or edit an existing one.
+/// Form to add a new insulin dose or edit an existing one.
 class AddInsulinScreen extends StatefulWidget {
-  /// When provided, the form is prefilled and saving updates this record.
+  /// Prefills the form and updates this record on save.
   final InsulinEntity? existing;
 
   const AddInsulinScreen({super.key, this.existing});
@@ -32,44 +26,43 @@ class _AddInsulinScreenState extends State<AddInsulinScreen> {
   final _doseController = TextEditingController();
   final _notesController = TextEditingController();
 
-  /// Selected injection site from the dropdown.
+  /// Selected injection site.
   String _site = 'Abdomen';
 
-  /// Chosen injection time of day.
+  /// Chosen injection time.
   TimeOfDay _time = TimeOfDay.now();
 
-  /// Whether a reminder notification is scheduled for this insulin record.
+  /// Whether a reminder is scheduled.
   bool _reminderEnabled = true;
 
-  /// Whether the reminder repeats every day (or fires only once).
+  /// Whether the reminder repeats daily.
   bool _repeatDaily = true;
 
-  /// Disables the button and shows a spinner while saving.
+  /// Shows a spinner while saving.
   bool _isSaving = false;
 
-  /// Keeps the original timestamp when editing so the record's clock
-  /// time is preserved even though only the time of day is shown.
+  /// Keeps the original timestamp when editing.
   int? _originalTimestamp;
 
-  /// The injection sites the user can choose from.
+  /// Injection sites the user can pick from.
   final _sites = ['Abdomen', 'Thigh', 'Arm', 'Buttock', 'Other'];
 
-  /// True when this screen is editing an existing record.
+  /// True when editing an existing record.
   bool get _isEditing => widget.existing != null;
 
   @override
   void initState() {
     super.initState();
-    // Prefill the form with the existing record's values when editing.
+    // Prefill the form when editing.
     final existing = widget.existing;
     if (existing != null) {
       _nameController.text = existing.name;
-      // Whole doses are shown without decimals (e.g. "10", not "10.0").
+      // Show whole doses without decimals.
       _doseController.text = existing.dose == existing.dose.roundToDouble()
           ? existing.dose.toInt().toString()
           : existing.dose.toString();
       if (_sites.contains(existing.site)) _site = existing.site;
-      // Parse the "HH:mm" string back into a TimeOfDay.
+      // Parse "HH:mm" back into a TimeOfDay.
       final parts = existing.time.split(':');
       if (parts.length == 2) {
         _time = TimeOfDay(
@@ -92,26 +85,22 @@ class _AddInsulinScreenState extends State<AddInsulinScreen> {
     super.dispose();
   }
 
-  /// Opens the system time picker and stores the chosen time.
+  /// Opens the time picker.
   Future<void> _pickTime() async {
     final picked = await showTimePicker(context: context, initialTime: _time);
     if (picked != null) setState(() => _time = picked);
   }
 
   /// Saves the insulin record to the local database.
-  ///
-  /// Called when the save button is pressed. Formats the chosen time as
-  /// "HH:mm", inserts a new record or updates the existing one, then
-  /// shows a success/error snackbar and pops back.
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isSaving = true);
     try {
-      // Convert the TimeOfDay into a "HH:mm" string for storage.
+      // Convert the time into a "HH:mm" string.
       final time =
           '${_time.hour.toString().padLeft(2, '0')}:'
           '${_time.minute.toString().padLeft(2, '0')}';
-      // Reuse the original timestamp when editing to keep the log order.
+      // Keep the original timestamp when editing.
       final timestamp =
           _originalTimestamp ?? DateTime.now().millisecondsSinceEpoch;
 
@@ -146,8 +135,7 @@ class _AddInsulinScreenState extends State<AddInsulinScreen> {
           ),
         );
       }
-      // When reminders are enabled schedule (or reschedule) the daily
-      // notification. When disabled, stop any previously scheduled one.
+      // Schedule the reminder, or cancel it when disabled.
       if (_reminderEnabled) {
         await NotificationService.instance.scheduleInsulinReminder(
           insulinId,
@@ -194,7 +182,7 @@ class _AddInsulinScreenState extends State<AddInsulinScreen> {
       appBar: AppBar(
         title: Text(_isEditing ? 'Edit Insulin' : 'Add Insulin'),
         actions: [
-          // Cancel button that exits the form without saving.
+          // Cancel without saving.
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text(
@@ -211,11 +199,11 @@ class _AddInsulinScreenState extends State<AddInsulinScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Screen heading with the insulin icon.
+              // Heading with the insulin icon.
               Center(
                 child: Column(
                   children: [
-                    // Circular icon marking the insulin section.
+                    // Icon marking the insulin section.
                     Container(
                       width: 72,
                       height: 72,
@@ -249,7 +237,7 @@ class _AddInsulinScreenState extends State<AddInsulinScreen> {
                 ),
               ),
               const SizedBox(height: 28),
-              // Name of the insulin (e.g. Humalog, Lantus).
+              // Name of the insulin.
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
@@ -261,7 +249,7 @@ class _AddInsulinScreenState extends State<AddInsulinScreen> {
                     v == null || v.isEmpty ? 'Insulin name is required' : null,
               ),
               const SizedBox(height: 14),
-              // Numeric field for the dose in units (validated 1-100).
+              // Dose in units, validated 1-100.
               TextFormField(
                 controller: _doseController,
                 keyboardType: TextInputType.number,
@@ -280,7 +268,7 @@ class _AddInsulinScreenState extends State<AddInsulinScreen> {
                 },
               ),
               const SizedBox(height: 14),
-              // Dropdown to choose the body site for the injection.
+              // Body site for the injection.
               DropdownButtonFormField<String>(
                 initialValue: _site,
                 decoration: const InputDecoration(
@@ -293,7 +281,7 @@ class _AddInsulinScreenState extends State<AddInsulinScreen> {
                 onChanged: (v) => setState(() => _site = v ?? 'Abdomen'),
               ),
               const SizedBox(height: 14),
-              // Tappable field that opens the time picker.
+              // Opens the time picker.
               InkWell(
                 onTap: _pickTime,
                 child: InputDecorator(
@@ -308,7 +296,7 @@ class _AddInsulinScreenState extends State<AddInsulinScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              // Master switch that turns this record's reminder on/off.
+              // Turns this record's reminder on or off.
               Card(
                 child: Column(
                   children: [
@@ -325,7 +313,7 @@ class _AddInsulinScreenState extends State<AddInsulinScreen> {
                       onChanged: (v) => setState(() => _reminderEnabled = v),
                     ),
                     const Divider(height: 1),
-                    // Whether the reminder repeats every day.
+                    // Whether the reminder repeats daily.
                     SwitchListTile(
                       secondary: const Icon(
                         Icons.repeat,
@@ -344,7 +332,7 @@ class _AddInsulinScreenState extends State<AddInsulinScreen> {
                 ),
               ),
               const SizedBox(height: 14),
-              // Optional multi-line notes field.
+              // Optional notes field.
               TextFormField(
                 controller: _notesController,
                 maxLines: 3,
@@ -358,7 +346,7 @@ class _AddInsulinScreenState extends State<AddInsulinScreen> {
                 ),
               ),
               const SizedBox(height: 28),
-              // Full-width save button with a loading spinner.
+              // Save button with a loading spinner.
               SizedBox(
                 width: double.infinity,
                 height: 50,

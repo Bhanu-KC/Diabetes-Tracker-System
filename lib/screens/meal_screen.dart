@@ -1,11 +1,4 @@
-/// Meal Tracker screen.
-///
-/// Reached from the home dashboard quick action or the `/meal-tracker`
-/// route. Shows today's calorie progress against a 2000 kcal goal and
-/// the user's meals grouped by meal type (Breakfast, Lunch, Dinner,
-/// Snacks). Data comes live from the local FloorDB via the
-/// [MealRepository] stream. Tapping a meal opens the edit form;
-/// long-pressing asks to delete it.
+/// Meal Tracker screen showing meals and calorie progress.
 
 library;
 
@@ -17,7 +10,7 @@ import '../database/entities/meal_entity.dart';
 import '../database/repositories/meal_repository.dart';
 import '../theme/app_theme.dart';
 
-/// The meal tracker screen showing meals and calorie progress.
+/// The meal tracker screen.
 class MealScreen extends StatefulWidget {
   const MealScreen({super.key});
 
@@ -26,17 +19,17 @@ class MealScreen extends StatefulWidget {
 }
 
 class _MealScreenState extends State<MealScreen> {
-  /// Meal types used for grouping and the daily calorie goal.
+  /// Meal types and the daily calorie goal.
   static const _mealTypes = ['Breakfast', 'Lunch', 'Dinner', 'Snacks'];
   static const _goal = 2000;
 
-  /// The live meal list (null while loading).
+  /// Live meal list, null while loading.
   List<MealEntity>? _meals;
 
-  /// Shows the load error instead of the list when set.
+  /// Load error shown instead of the list.
   String? _error;
 
-  /// Subscription to the meal stream; cancelled in [dispose].
+  /// Meal stream subscription, cancelled in [dispose].
   StreamSubscription<List<MealEntity>>? _mealsSub;
 
   @override
@@ -51,10 +44,7 @@ class _MealScreenState extends State<MealScreen> {
     super.dispose();
   }
 
-  /// Starts listening to the live meal stream from FloorDB.
-  ///
-  /// Called once in [initState]. Every change in the database (add,
-  /// update, delete) triggers a rebuild with the new list.
+  /// Starts listening to the live meal stream.
   Future<void> _init() async {
     try {
       final repo = await MealRepository.getInstance();
@@ -72,10 +62,7 @@ class _MealScreenState extends State<MealScreen> {
     }
   }
 
-  /// Sums the calories of all meals logged today.
-  ///
-  /// Compares each meal's timestamp against today's start and end to
-  /// count only meals recorded on the current day.
+  /// Calories from all meals logged today.
   int get _todayCalories {
     final meals = _meals ?? const [];
     final now = DateTime.now();
@@ -101,7 +88,7 @@ class _MealScreenState extends State<MealScreen> {
     return total.round();
   }
 
-  /// Opens the Add Meal screen in edit mode for the given meal.
+  /// Opens the Add Meal screen in edit mode.
   Future<void> _openEdit(MealEntity meal) async {
     await Navigator.push(
       context,
@@ -109,10 +96,7 @@ class _MealScreenState extends State<MealScreen> {
     );
   }
 
-  /// Asks the user to confirm, then deletes the meal.
-  ///
-  /// Shows an alert dialog. Only if the user confirms is the meal
-  /// removed through the repository.
+  /// Asks for confirmation, then deletes the meal.
   Future<void> _confirmDelete(MealEntity meal) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -162,7 +146,7 @@ class _MealScreenState extends State<MealScreen> {
     return Scaffold(
       backgroundColor: AppColors.backgroundGrey,
       appBar: AppBar(title: const Text('Meal Tracker')),
-      // Floating action button that opens the Add Meal screen.
+      // Opens the Add Meal screen.
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.push(
           context,
@@ -174,11 +158,10 @@ class _MealScreenState extends State<MealScreen> {
     );
   }
 
-  /// Builds the body: error message, loading spinner, empty state or
-  /// the meal list grouped by type.
+  /// Body: error, spinner, empty state, or the meal list.
   Widget _buildBody(ThemeData theme) {
     if (_error != null) {
-      // Error state with the failure message.
+      // Error state.
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
@@ -201,11 +184,11 @@ class _MealScreenState extends State<MealScreen> {
     }
     final meals = _meals;
     if (meals == null) {
-      // Loading spinner while the first stream event arrives.
+      // Spinner while loading.
       return const Center(child: CircularProgressIndicator());
     }
     if (meals.isEmpty) {
-      // Friendly empty state with instructions to add a meal.
+      // Empty state telling the user to add a meal.
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
@@ -237,8 +220,7 @@ class _MealScreenState extends State<MealScreen> {
       );
     }
 
-    // List of the calorie progress card followed by one section per
-    // meal type that has at least one meal.
+    // Calorie progress card, then one section per meal type.
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -258,10 +240,7 @@ class _MealScreenState extends State<MealScreen> {
     );
   }
 
-  /// Card showing today's calories against the daily goal.
-  ///
-  /// Combines a circular progress ring, the remaining/over-goal text and
-  /// a linear progress bar. Colour turns amber at 100% and red when over.
+  /// Card with today's calories against the daily goal.
   Widget _calorieProgress(ThemeData theme, int consumed, int goal) {
     final percent = goal == 0 ? 0.0 : consumed / goal;
 
@@ -270,7 +249,7 @@ class _MealScreenState extends State<MealScreen> {
         padding: const EdgeInsets.all(20),
         child: Row(
           children: [
-            // Circular calorie ring with the amount in the middle.
+            // Calorie ring with the amount in the middle.
             SizedBox(
               width: 100,
               height: 100,
@@ -303,7 +282,7 @@ class _MealScreenState extends State<MealScreen> {
               ),
             ),
             const SizedBox(width: 20),
-            // Summary text and linear bar on the right side.
+            // Summary text and bar on the right.
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -330,7 +309,7 @@ class _MealScreenState extends State<MealScreen> {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   const SizedBox(height: 4),
-                  // Remaining kcals or "over goal" message.
+                  // Remaining kcals, or "over goal" message.
                   Text(
                     percent > 1
                         ? '${(consumed - goal)} kcal over goal'
@@ -351,19 +330,16 @@ class _MealScreenState extends State<MealScreen> {
     );
   }
 
-  /// Builds one meal group card (e.g. Breakfast) with its meals.
-  ///
-  /// Each meal row shows a colour accent, the name, a formatted time
-  /// and its calories. Tap edits, long press deletes.
+  /// One meal group card (e.g. Breakfast) with its meals.
   Widget _mealSection(ThemeData theme, String title, List<MealEntity> items) {
-    // Each meal type has its own icon and accent colour.
+    // Each meal type has its own icon and colour.
     final (icon, color) = switch (title) {
       'Breakfast' => (Icons.wb_sunny_outlined, AppColors.warningAmber),
       'Lunch' => (Icons.wb_cloudy_outlined, AppColors.primaryBlue),
       'Dinner' => (Icons.nightlight_outlined, AppColors.softGreen),
       _ => (Icons.cookie_outlined, AppColors.errorRed),
     };
-    // Sum of all calories in this section.
+    // Total calories in this section.
     final sectionCalories = items.fold<int>(
       0,
       (sum, m) => sum + (m.calories?.round() ?? 0),
@@ -375,7 +351,7 @@ class _MealScreenState extends State<MealScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Section header: icon, title and total calories.
+            // Section header with icon, title and total.
             Row(
               children: [
                 Icon(icon, color: color, size: 22),
@@ -396,7 +372,7 @@ class _MealScreenState extends State<MealScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            // One interactive row per meal in the section.
+            // One tappable row per meal.
             ...items.map(
               (meal) => InkWell(
                 borderRadius: BorderRadius.circular(8),
@@ -406,7 +382,7 @@ class _MealScreenState extends State<MealScreen> {
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Row(
                     children: [
-                      // Colour accent bar on the left of the row.
+                      // Colour bar on the left of the row.
                       Container(
                         width: 4,
                         height: 36,
@@ -420,7 +396,6 @@ class _MealScreenState extends State<MealScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Meal name.
                             Text(
                               meal.name,
                               style: theme.textTheme.bodyMedium?.copyWith(
@@ -435,7 +410,7 @@ class _MealScreenState extends State<MealScreen> {
                           ],
                         ),
                       ),
-                      // Calories shown on the right.
+                      // Calories on the right.
                       Text(
                         '${meal.calories?.round() ?? 0} kcal',
                         style: theme.textTheme.bodySmall?.copyWith(
@@ -453,7 +428,7 @@ class _MealScreenState extends State<MealScreen> {
     );
   }
 
-  /// Formats a millisecond timestamp as a 12-hour time (e.g. "2:30 PM").
+  /// Formats a timestamp as a 12-hour time like "2:30 PM".
   String _formatTime(int millis) {
     final t = DateTime.fromMillisecondsSinceEpoch(millis);
     final period = t.hour >= 12 ? 'PM' : 'AM';

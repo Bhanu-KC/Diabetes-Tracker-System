@@ -1,10 +1,4 @@
 /// Medication details screen.
-///
-/// Reached by tapping a medication card on the medication dashboard.
-/// Shows all stored information about one medication (name, dosage,
-/// frequency, reminder time, start/end dates and notes). Offers Edit
-/// and Delete actions. Deletion is performed through the
-/// [MedicationRepository] after a confirmation dialog.
 
 library;
 
@@ -15,14 +9,14 @@ import '../database/repositories/medication_repository.dart';
 import '../services/notification_service.dart';
 import '../theme/app_theme.dart';
 
-/// Read-only details view for a single medication.
+/// Read-only details for one medication.
 class MedicationDetails extends StatelessWidget {
-  /// The medication to display. When null the screen shows a message.
+  /// The medication to show, or null for a message.
   final MedicationEntity? medication;
 
   const MedicationDetails({super.key, this.medication});
 
-  /// Formats a millisecond timestamp as "dd Mon yyyy" (e.g. "05 Aug 2026").
+  /// Formats a timestamp as "05 Aug 2026".
   String _formatDate(int millis) {
     final d = DateTime.fromMillisecondsSinceEpoch(millis);
     const months = [
@@ -43,7 +37,7 @@ class MedicationDetails extends StatelessWidget {
     return '$padded ${months[d.month - 1]} ${d.year}';
   }
 
-  /// Converts a stored "HH:mm" string into a 12-hour time (e.g. "2:30 PM").
+  /// Converts "HH:mm" to a 12-hour time like "2:30 PM".
   String _formatTime(String time) {
     final parts = time.split(':');
     if (parts.length != 2) return time;
@@ -54,10 +48,7 @@ class MedicationDetails extends StatelessWidget {
     return '$h12:${minute.toString().padLeft(2, '0')} $period';
   }
 
-  /// Asks the user to confirm, then deletes the medication.
-  ///
-  /// Shows an alert dialog first; only a confirmed delete removes the
-  /// medication through the repository and pops back to the dashboard.
+  /// Asks for confirmation, then deletes the medication.
   Future<void> _delete(BuildContext context, MedicationEntity med) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -83,7 +74,7 @@ class MedicationDetails extends StatelessWidget {
     try {
       final repo = await MedicationRepository.getInstance();
       await repo.delete(med);
-      // Stop the scheduled reminder for the deleted medication.
+      // Cancel the reminder for the deleted medication.
       await NotificationService.instance.cancelNotification(
         NotificationService.medicationNotificationId(med.id!),
       );
@@ -125,7 +116,7 @@ class MedicationDetails extends StatelessWidget {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                // Header card with the medication icon and name.
+                // Header card with icon and name.
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
@@ -148,7 +139,6 @@ class MedicationDetails extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        // Medication name.
                         Text(
                           med.name,
                           style: theme.textTheme.displaySmall?.copyWith(
@@ -156,7 +146,7 @@ class MedicationDetails extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        // Dosage and frequency summary.
+                        // Dosage and frequency.
                         Text(
                           '${med.dosage}  ${med.frequency}',
                           style: theme.textTheme.bodyMedium?.copyWith(
@@ -168,7 +158,7 @@ class MedicationDetails extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Card listing every stored detail of the medication.
+                // Card with all the stored details.
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(20),
@@ -242,10 +232,10 @@ class MedicationDetails extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-                // Edit and Delete buttons side by side.
+                // Edit and Delete buttons.
                 Row(
                   children: [
-                    // Opens the Add Medication screen in edit mode.
+                    // Opens the edit form.
                     Expanded(
                       child: SizedBox(
                         height: 48,
@@ -266,7 +256,7 @@ class MedicationDetails extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 14),
-                    // Deletes the medication after confirmation.
+                    // Deletes after confirmation.
                     Expanded(
                       child: SizedBox(
                         height: 48,

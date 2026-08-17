@@ -1,9 +1,4 @@
 /// History screen showing past health activity as a timeline.
-///
-/// Reached from the bottom navigation "History" tab. Merges records from
-/// all four FloorDB tables (blood sugar, medication, insulin, meals) into
-/// one timeline. Supports searching and filtering by category. Data is
-/// live via the repository streams.
 
 library;
 
@@ -20,7 +15,7 @@ import '../database/repositories/meal_repository.dart';
 import '../database/repositories/medication_repository.dart';
 import '../theme/app_theme.dart';
 
-/// The screen that displays all recorded activity in one timeline.
+/// Shows all recorded activity in one timeline.
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
 
@@ -29,10 +24,10 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  /// Currently selected category filter (default: show everything).
+  /// Selected category filter (default: everything).
   String _selectedFilter = 'All';
 
-  /// Controller and value for the search box.
+  /// Search box controller and current query.
   final _searchController = TextEditingController();
   String _searchQuery = '';
 
@@ -67,11 +62,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     _init();
   }
 
-  /// Subscribes to the four FloorDB streams used by the timeline.
-  ///
-  /// Called once in [initState]. Each stream updates its own list and
-  /// marks itself as loaded so the timeline only renders when all data
-  /// is available.
+  /// Subscribes to the four FloorDB streams.
   Future<void> _init() async {
     try {
       final repo = await GlucoseRepository.getInstance();
@@ -140,14 +131,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
     super.dispose();
   }
 
-  /// Whether the given [section] should be shown for the current filter.
+  /// Whether [section] is shown with the current filter.
   bool _shouldShow(String section) {
     return _selectedFilter == 'All' || _selectedFilter == section;
   }
 
-  /// Whether the given [text] matches the current search query.
-  ///
-  /// Returns true when the search box is empty. Comparison ignores case.
+  /// Whether [text] matches the search query (case-insensitive).
   bool _matches(String text) {
     if (_searchQuery.isEmpty) return true;
     return text.toLowerCase().contains(_searchQuery.toLowerCase());
@@ -161,7 +150,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       appBar: AppBar(
         title: const Text('History'),
         actions: [
-          // Sort button (records are always shown newest first).
+          // Sort button; records are always newest first.
           IconButton(
             icon: const Icon(Icons.sort),
             onPressed: () {
@@ -175,7 +164,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       ),
       body: Column(
         children: [
-          // Search box used to filter the timeline.
+          // Search box to filter the timeline.
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
             child: TextField(
@@ -184,7 +173,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               decoration: InputDecoration(
                 hintText: 'Search records...',
                 prefixIcon: const Icon(Icons.search),
-                // Clear button shown while a query is active.
+                // Clear button while a query is active.
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear),
@@ -198,7 +187,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          // Horizontal row of category filter chips.
+          // Row of category filter chips.
           SizedBox(
             height: 40,
             child: ListView(
@@ -226,17 +215,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  /// Builds the timeline body with filtered sections.
-  ///
-  /// Shows a loading spinner until all streams load, an empty state when
-  /// nothing matches, otherwise one timeline section per category. Each
-  /// section is limited to the 10 newest records.
+  /// Builds the timeline with filtered sections.
   Widget _buildBody(ThemeData theme) {
     if (!_allLoaded) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    // Each category's records filtered by the search query.
+    // Filtered records for each category.
     final visibleGlucose = _glucose
         .where((g) => _matches(g.level.toStringAsFixed(0)))
         .toList();
@@ -250,7 +235,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         .where((m) => _matches('${m.name} ${m.mealType}'))
         .toList();
 
-    // Whether anything should be drawn at all.
+    // Whether anything matches at all.
     final hasAny =
         visibleGlucose.isNotEmpty ||
         visibleMedications.isNotEmpty ||
@@ -258,7 +243,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         visibleMeals.isNotEmpty;
 
     if (!hasAny) {
-      // Empty state with a hint related to the current search.
+      // Empty state with a hint.
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
@@ -292,7 +277,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       );
     }
 
-    // Timeline sections, one per category with any visible records.
+    // One timeline section per category with records.
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       children: [
@@ -385,7 +370,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return 'Very High';
   }
 
-  /// Returns the status colour for a glucose level (red/green/amber).
+  /// Colour for a glucose level: red, green or amber.
   Color _glucoseStatusColor(double level) {
     if (level < 70) return AppColors.errorRed;
     if (level <= 140) return AppColors.softGreen;
@@ -393,7 +378,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return AppColors.errorRed;
   }
 
-  /// Formats a timestamp as "Today/Yesterday, HH:MM AM/PM" or a date.
+  /// Formats a timestamp as "Today, 2:30 PM" or a date.
   String _formatTimestamp(int millis) {
     final t = DateTime.fromMillisecondsSinceEpoch(millis);
     final now = DateTime.now();
@@ -422,7 +407,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return '${t.day} ${months[t.month - 1]} ${t.year}, $time';
   }
 
-  /// Converts a stored "HH:mm" string into a 12-hour time (e.g. "2:30 PM").
+  /// Converts "HH:mm" to a 12-hour time like "2:30 PM".
   String _formatTime(String time) {
     final parts = time.split(':');
     if (parts.length != 2) return time;
@@ -433,7 +418,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return '$h12:${minute.toString().padLeft(2, '0')} $period';
   }
 
-  /// Formats a millisecond timestamp as "dd Mon yyyy" (e.g. "05 Aug 2026").
+  /// Formats a timestamp as "05 Aug 2026".
   String _formatDate(int millis) {
     final d = DateTime.fromMillisecondsSinceEpoch(millis);
     const months = [
@@ -454,7 +439,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return '$padded ${months[d.month - 1]} ${d.year}';
   }
 
-  /// Header row shown above each category in the timeline.
+  /// Header row above each timeline section.
   Widget _sectionHeader(
     ThemeData theme,
     String title,
@@ -478,10 +463,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  /// One timeline row: an icon dot with a connector above a card.
-  ///
-  /// The card shows the record's title, subtitle and timestamp, and its
-  /// colour reflects the record type or blood sugar status.
+  /// One timeline row: icon dot and connector above a card.
   Widget _timelineCard(
     ThemeData theme,
     IconData icon,
@@ -496,7 +478,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Icon dot plus the vertical connector line below it.
+          // Icon dot with a connector line below.
           Column(
             children: [
               Container(
@@ -521,7 +503,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Record title.
                     Text(
                       title,
                       style: theme.textTheme.titleLarge?.copyWith(
@@ -530,13 +511,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       ),
                     ),
                     const SizedBox(height: 2),
-                    // Record subtitle.
                     Text(
                       subtitle,
                       style: theme.textTheme.bodySmall?.copyWith(fontSize: 11),
                     ),
                     const SizedBox(height: 4),
-                    // Timestamp with a small clock icon.
+                    // Timestamp with a clock icon.
                     Row(
                       children: [
                         Icon(

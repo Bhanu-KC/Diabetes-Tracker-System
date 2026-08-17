@@ -1,10 +1,4 @@
 /// Splash screen shown briefly when the app starts.
-///
-/// This is the first screen of the app (initial route '/'). It shows the
-/// app logo and name with a fade-in animation for about 3 seconds, then
-/// redirects the user either to the Home screen (if already signed in) or
-/// to the Login screen (if not). It exists to give the app a clean,
-/// branded start and to decide the first destination after startup.
 
 library;
 
@@ -13,7 +7,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-/// The splash/loading screen displayed on app launch.
+/// Loading screen shown on app launch.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -23,19 +17,19 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
-  /// Controls the fade-in animation of the logo and text.
+  /// Drives the fade-in animation.
   late AnimationController _controller;
 
-  /// The actual opacity animation driven by [_controller].
+  /// The opacity animation.
   late Animation<double> _fadeAnimation;
 
-  /// The timer that decides the navigation after 3 seconds.
+  /// Timer for the navigation after 3 seconds.
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    // Set up and start the fade-in animation.
+    // Start the fade-in animation.
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -43,7 +37,7 @@ class _SplashScreenState extends State<SplashScreen>
     _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
 
-    // After 3 seconds, check if a user is signed in and navigate.
+    // After 3 seconds, navigate based on login state.
     _timer = Timer(const Duration(seconds: 3), () async {
       if (!mounted) return;
       User? user;
@@ -62,7 +56,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   void dispose() {
-    // Cancel the pending timer to avoid navigating after dispose.
+    // Cancel the timer to avoid navigating after dispose.
     _timer?.cancel();
     _controller.dispose();
     super.dispose();
@@ -71,7 +65,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Blue gradient background for the whole splash screen.
+      // Blue gradient background.
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -81,13 +75,13 @@ class _SplashScreenState extends State<SplashScreen>
           ),
         ),
         child: Center(
-          // FadeTransition animates the logo block from transparent.
+          // Fades the logo block in.
           child: FadeTransition(
             opacity: _fadeAnimation,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Circular container with the app heart icon (logo).
+                // Circle with the app heart icon.
                 Container(
                   width: 100,
                   height: 100,
@@ -102,7 +96,7 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 ),
                 const SizedBox(height: 32),
-                // App name shown in large white bold text.
+                // App name in big bold white text.
                 Text(
                   'Diabetes Tracking\nSystem',
                   textAlign: TextAlign.center,
@@ -113,14 +107,14 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Small decorative line under the title.
+                // Decorative line under the title.
                 Container(
                   height: 2,
                   width: 60,
                   color: Colors.white.withValues(alpha: 0.5),
                 ),
                 const SizedBox(height: 16),
-                // Tagline below the app name.
+                // Tagline under the app name.
                 Text(
                   'Track Your Health, Live Better',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(

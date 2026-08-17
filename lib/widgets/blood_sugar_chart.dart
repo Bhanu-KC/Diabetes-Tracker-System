@@ -1,8 +1,4 @@
-/// Line chart of the blood sugar trend using the fl_chart library.
-///
-/// Plots each reading as a point on a blue curved line with a light
-/// fill underneath. The y-axis is fixed between 80 and 200 mg/dL and
-/// the bottom axis labels reading order by weekday.
+/// A line chart of the blood sugar trend (made with fl_chart).
 
 library;
 
@@ -10,9 +6,9 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
-/// The blood sugar trend chart shown on the dashboard tab.
+/// The blood sugar trend chart on the dashboard.
 class BloodSugarChart extends StatelessWidget {
-  /// The chart points (x = reading index, y = blood sugar level).
+  /// Chart points (x = reading index, y = sugar level).
   final List<FlSpot> spots;
 
   const BloodSugarChart({super.key, required this.spots});
@@ -94,7 +90,7 @@ class BloodSugarChart extends StatelessWidget {
             ),
           ),
         ],
-        // Tooltip showing the value in mg/dL when touching the chart.
+        // Shows the value in mg/dL when you touch the chart.
         lineTouchData: LineTouchData(
           touchTooltipData: LineTouchTooltipData(
             getTooltipItems: (touchedSpots) => touchedSpots.map((spot) {

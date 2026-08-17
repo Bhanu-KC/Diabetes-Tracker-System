@@ -1,10 +1,4 @@
 /// Registration screen for creating a new user account.
-///
-/// Reached from the Login screen. The user fills in personal details,
-/// an emergency contact and account credentials. On submit the account
-/// is created with Firebase Authentication and the profile is saved to
-/// Firestore. Registration signs the user in automatically, so the app
-/// goes straight to the home dashboard.
 
 library;
 
@@ -14,7 +8,7 @@ import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
 import '../theme/app_theme.dart';
 
-/// The screen that creates a new account and user profile.
+/// Creates a new account and user profile.
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -23,10 +17,10 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  /// Validates all form fields before registration is attempted.
+  /// Validates the form before registering.
   final _formKey = GlobalKey<FormState>();
 
-  /// Controllers for every text field on the form.
+  /// Controllers for all the form fields.
   final _nameController = TextEditingController();
   final _ageController = TextEditingController();
   final _heightController = TextEditingController();
@@ -37,15 +31,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-  /// Selected values for the gender and diabetes type dropdowns.
+  /// Selected gender and diabetes type.
   String _gender = 'Male';
   String _diabetesType = 'Type 1';
 
-  /// Controls whether the password fields show or hide their text.
+  /// Whether the password fields hide their text.
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
 
-  /// Disables the button and shows a spinner while registering.
+  /// Shows a spinner while registering.
   bool _isLoading = false;
   final _authService = AuthService();
   final _firestoreService = FirestoreService();
@@ -64,23 +58,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  /// Registers a new account and saves the profile in Firestore.
-  ///
-  /// Called when the Register button is pressed. First validates the
-  /// form, then creates the Firebase account, then stores the user's
-  /// details in the `users` collection. Account creation signs the user
-  /// in automatically, so on success the app opens the home dashboard;
-  /// failures show friendly error messages.
+  /// Registers a new account and saves the profile.
   Future<void> _register() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
       try {
-        // Step 1: create the account with email and password.
+        // Create the account with email and password.
         await _authService.register(
           email: _emailController.text,
           password: _passwordController.text,
         );
-        // Step 2: store the profile details under the new user's UID.
+        // Save the profile details under the new user's UID.
         final user = _authService.currentUser;
         if (user != null) {
           await _firestoreService.createUserProfile(
@@ -99,8 +87,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           );
         }
         if (!mounted) return;
-        // Account created and profile saved: the user is already signed
-        // in by Firebase, so go straight to the home dashboard.
+        // Signed in automatically, so go straight to the dashboard.
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Account created successfully!'),
@@ -110,7 +97,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         Navigator.pushReplacementNamed(context, '/home');
       } catch (e) {
         if (!mounted) return;
-        // Show a friendly message (e.g. "email already in use").
+        // Show a friendly error message.
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(getFriendlyAuthError(e)),
@@ -138,7 +125,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               Center(
                 child: Column(
                   children: [
-                    // Circular app icon at the top of the form.
+                    // App icon at the top of the form.
                     Container(
                       width: 72,
                       height: 72,
@@ -387,7 +374,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
 
               const SizedBox(height: 28),
-              // Full-width register button with a loading spinner.
+              // Register button with a loading spinner.
               SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -437,15 +424,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  /// Builds the heading text used for each section of the form.
+  /// Heading text for each form section.
   Widget sectionTitle(BuildContext context, String title) {
     return Text(title, style: Theme.of(context).textTheme.titleLarge);
   }
 
-  /// Reusable styled text field used by all form inputs.
-  ///
-  /// Wraps [TextFormField] with a label and icon so the form code stays
-  /// short and consistent. [validator] is used for field validation.
+  /// Reusable styled text field for the form inputs.
   Widget buildTextField({
     required TextEditingController controller,
     required String label,

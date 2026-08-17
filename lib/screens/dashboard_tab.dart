@@ -1,9 +1,4 @@
 /// Dashboard tab showing the user's health summary at a glance.
-///
-/// Displays the latest blood sugar, today's calorie total, medication
-/// and insulin reminders, quick action shortcuts and a blood sugar
-/// trend chart. All data is live: the tab subscribes to the four
-/// FloorDB streams and rebuilds automatically when records change.
 
 library;
 
@@ -28,7 +23,7 @@ import '../widgets/next_reminder_card.dart';
 import '../widgets/quick_action_card.dart';
 import '../widgets/reminder_card.dart';
 
-/// The first tab of the home screen: the health dashboard.
+/// The first home tab: the health dashboard.
 class DashboardTab extends StatefulWidget {
   const DashboardTab({super.key});
 
@@ -37,28 +32,28 @@ class DashboardTab extends StatefulWidget {
 }
 
 class _DashboardTabState extends State<DashboardTab> {
-  /// Live records loaded from the four FloorDB tables.
+  /// Live records from the four FloorDB tables.
   List<GlucoseEntity> _records = [];
   List<MealEntity> _meals = [];
   List<MedicationEntity> _medications = [];
   List<InsulinEntity> _insulinRecords = [];
 
-  /// One flag per stream; the tab only renders once all four loaded.
+  /// One flag per stream; render only after all four load.
   bool _glucoseLoaded = false;
   bool _mealsLoaded = false;
   bool _medicationsLoaded = false;
   bool _insulinLoaded = false;
 
-  /// Stream subscriptions; all cancelled in [dispose].
+  /// Stream subscriptions, cancelled in [dispose].
   StreamSubscription<List<GlucoseEntity>>? _glucoseSub;
   StreamSubscription<List<MealEntity>>? _mealsSub;
   StreamSubscription<List<MedicationEntity>>? _medicationsSub;
   StreamSubscription<List<InsulinEntity>>? _insulinSub;
 
-  /// User name shown in the greeting (from the Firestore profile).
+  /// User name shown in the greeting.
   String _userName = 'Bhanu';
 
-  /// Returns a greeting based on the current time of day.
+  /// Greeting based on the time of day.
   String _greeting() {
     final hour = DateTime.now().hour;
     if (hour < 12) return 'Good Morning';
@@ -66,17 +61,17 @@ class _DashboardTabState extends State<DashboardTab> {
     return 'Good Evening';
   }
 
-  /// True once every data stream has emitted its first event.
+  /// True when every stream has loaded.
   bool get _allLoaded =>
       _glucoseLoaded && _mealsLoaded && _medicationsLoaded && _insulinLoaded;
 
-  /// The latest glucose value as text, or null when no readings exist.
+  /// Latest glucose value as text, or null if none.
   String? get _latestValue {
     if (_records.isEmpty) return null;
     return _records.first.level.toStringAsFixed(0);
   }
 
-  /// Sum of the calories of all meals logged today.
+  /// Calories from all meals logged today.
   int get _todayCalories {
     final now = DateTime.now();
     final todayStart = DateTime(
@@ -101,18 +96,15 @@ class _DashboardTabState extends State<DashboardTab> {
     return total.round();
   }
 
-  /// The most recently added medication, or null when none exist.
+  /// Latest medication, or null if none.
   MedicationEntity? get _latestMedication =>
       _medications.isEmpty ? null : _medications.first;
 
-  /// The most recently logged insulin dose, or null when none exist.
+  /// Latest insulin dose, or null if none.
   InsulinEntity? get _latestInsulin =>
       _insulinRecords.isEmpty ? null : _insulinRecords.first;
 
-  /// Converts the readings into chart points for the trend graph.
-  ///
-  /// The records are stored newest first, so they are reversed to draw
-  /// the oldest reading on the left of the chart.
+  /// Readings as chart points, oldest on the left.
   List<FlSpot> get _trendSpots {
     final spots = <FlSpot>[];
     final reversed = _records.reversed.toList();
@@ -138,10 +130,7 @@ class _DashboardTabState extends State<DashboardTab> {
     super.dispose();
   }
 
-  /// Fetches the user's name from the Firestore profile.
-  ///
-  /// Used for the greeting. Falls back to the default name when the
-  /// profile is missing or Firestore is unavailable.
+  /// Fetches the user's name for the greeting.
   Future<void> _loadUserName() async {
     final user = AuthService().currentUser;
     if (user == null) return;
@@ -151,16 +140,11 @@ class _DashboardTabState extends State<DashboardTab> {
         setState(() => _userName = profile.fullName.trim());
       }
     } catch (_) {
-      // Keep the default name if Firestore is unavailable.
+      // Keep the default name if Firestore fails.
     }
   }
 
-  /// Subscribes to the four FloorDB streams (glucose, meals,
-  /// medications, insulin).
-  ///
-  /// Called once in [initState]. Each stream updates its own list and
-  /// marks itself as loaded. Errors keep the tab usable by simply
-  /// marking the stream as loaded.
+  /// Subscribes to the four FloorDB streams.
   Future<void> _init() async {
     try {
       final glucoseRepo = await GlucoseRepository.getInstance();
@@ -219,7 +203,7 @@ class _DashboardTabState extends State<DashboardTab> {
     }
   }
 
-  /// Formats a whole number with comma separators (e.g. 1234 -> "1,234").
+  /// Formats a number with commas, e.g. 1234 -> "1,234".
   String _formatNumber(int value) {
     final s = value.toString();
     final buffer = StringBuffer();
@@ -230,7 +214,7 @@ class _DashboardTabState extends State<DashboardTab> {
     return buffer.toString();
   }
 
-  /// Converts a stored "HH:mm" string into a 12-hour time (e.g. "2:30 PM").
+  /// Converts "HH:mm" to a 12-hour time like "2:30 PM".
   String _formatTime(String time) {
     final parts = time.split(':');
     if (parts.length != 2) return time;
@@ -241,10 +225,7 @@ class _DashboardTabState extends State<DashboardTab> {
     return '$h12:${minute.toString().padLeft(2, '0')} $period';
   }
 
-  /// Convert a "HH:mm" string into the next DateTime it occurs.
-  ///
-  /// If the time has already passed today, tomorrow is used instead.
-  /// Returns null when the string cannot be parsed (e.g. "HH:mm" only).
+  /// Next time "HH:mm" happens (tomorrow if it passed today).
   DateTime? _nextOccurrence(String hhmm, DateTime now) {
     final parts = hhmm.split(':');
     if (parts.length != 2) return null;
@@ -256,14 +237,7 @@ class _DashboardTabState extends State<DashboardTab> {
     return when;
   }
 
-  /// The single next upcoming reminder across all medications and
-  /// insulin records, or null when no reminders exist.
-  ///
-  /// Only records with their reminder enabled are considered, so a
-  /// medication or insulin entry with reminders turned off is skipped.
-  /// Compares the next occurrence of every reminder time and keeps the
-  /// earliest one, recording whether it is a medication or insulin
-  /// reminder and at what 12-hour time it fires.
+  /// The next reminder across all medications and insulin records.
   NextReminderInfo? get _nextReminder {
     final now = DateTime.now();
     ({DateTime when, String type, String name})? best;
@@ -292,7 +266,7 @@ class _DashboardTabState extends State<DashboardTab> {
     );
   }
 
-  /// Formats a dose for display: whole numbers lose the decimal part.
+  /// Shows whole doses without decimals.
   String _formatDose(double dose) {
     if (dose == dose.roundToDouble()) return dose.toInt().toString();
     return dose.toString();
@@ -301,7 +275,7 @@ class _DashboardTabState extends State<DashboardTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // App bar with the time-based greeting and tagline.
+      // App bar with greeting and tagline.
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -317,7 +291,7 @@ class _DashboardTabState extends State<DashboardTab> {
           ],
         ),
       ),
-      // Full-page spinner until every stream has loaded once.
+      // Spinner until every stream has loaded.
       body: !_allLoaded
           ? const Center(child: CircularProgressIndicator())
           : ListView(
@@ -350,13 +324,12 @@ class _DashboardTabState extends State<DashboardTab> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                // Next upcoming reminder across medications and insulin.
+                // Next reminder across medications and insulin.
                 NextReminderCard(
                   reminder: _nextReminder,
                 ),
                 const SizedBox(height: 12),
-                // Reminder cards for medication and insulin, stacked
-                // vertically so they never get squished on narrow phones.
+                // Medication and insulin reminder cards, stacked.
                 ReminderCard(
                   icon: Icons.medication_outlined,
                   title: 'Medication',
@@ -387,7 +360,7 @@ class _DashboardTabState extends State<DashboardTab> {
                   color: AppColors.primaryBlue,
                 ),
                 const SizedBox(height: 20),
-                // Quick actions heading and shortcuts.
+                // Quick actions heading.
                 Text(
                   'Quick Actions',
                   style: Theme.of(context).textTheme.titleLarge,
@@ -454,7 +427,7 @@ class _DashboardTabState extends State<DashboardTab> {
                     padding: const EdgeInsets.fromLTRB(12, 20, 16, 12),
                     child: SizedBox(
                       height: 200,
-                      // Empty message while no readings exist.
+                      // Message when there are no readings.
                       child: _trendSpots.isEmpty
                           ? Center(
                               child: Text(

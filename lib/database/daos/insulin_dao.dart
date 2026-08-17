@@ -1,11 +1,4 @@
-/// Data Access Object for the `insulin_records` table.
-///
-/// This class contains every SQL query the app needs for insulin data.
-/// DAOs are written as abstract classes with Floor annotations; the Floor
-/// code generator turns them into real SQLite queries at build time. The
-/// Insulin Repository uses this DAO and the insulin screen uses the
-/// repository.
-
+/// All SQL queries for the insulin_records table.
 library;
 
 import 'package:floor/floor.dart';
@@ -14,33 +7,27 @@ import '../entities/insulin_entity.dart';
 /// DAO for insulin dose entries.
 @dao
 abstract class InsulinDao {
-  /// Returns all insulin records once, newest first, as a one-off list.
-  /// Used for one-time loads such as the reports screen.
+  /// Gets all insulin records, newest first.
   @Query('SELECT * FROM insulin_records ORDER BY timestamp DESC')
   Future<List<InsulinEntity>> getAllRecords();
 
-  /// Emits the full list of insulin records every time the table changes.
-  /// The insulin screen subscribes to this stream so the list updates
-  /// automatically after a save or delete.
+  /// Streams all insulin records, updating automatically on changes.
   @Query('SELECT * FROM insulin_records ORDER BY timestamp DESC')
   Stream<List<InsulinEntity>> watchAllRecords();
 
-  /// Returns a single insulin record by its [id], or null if it does not
-  /// exist. Used by the edit flow to load the record being edited.
+  /// Gets one insulin record by id, or null if not found.
   @Query('SELECT * FROM insulin_records WHERE id = :id')
   Future<InsulinEntity?> getRecordById(int id);
 
-  /// Inserts a new insulin record and returns the newly generated id.
-  /// Existing rows are replaced on a conflict (upsert behaviour).
+  /// Inserts a new insulin record, returns the new id.
   @Insert(onConflict: OnConflictStrategy.replace)
   Future<int> insertRecord(InsulinEntity record);
 
-  /// Updates an existing insulin record (matched by its id) and returns
-  /// the number of rows changed.
+  /// Updates an insulin record, returns rows changed.
   @Update()
   Future<int> updateRecord(InsulinEntity record);
 
-  /// Deletes an insulin record and returns the number of rows removed.
+  /// Deletes an insulin record, returns rows removed.
   @delete
   Future<int> deleteRecord(InsulinEntity record);
 }

@@ -1,51 +1,37 @@
-/// Entity representing a single insulin dose logged by the user.
-///
-/// This model maps directly to the `insulin_records` table in the local
-/// FloorDB database. It exists so insulin logs can be stored offline and
-/// shown in the insulin screen list and as a reminder card on the home
-/// dashboard.
-
+/// An insulin dose logged by the user, saved in the insulin_records table.
 library;
 
 import 'package:floor/floor.dart';
 
-/// A single insulin log entry stored in the `insulin_records` table.
-///
-/// When the user saves an insulin dose in the Add Insulin screen a new
-/// [InsulinEntity] is created and written through the insulin DAO.
+/// One insulin log row in the database.
 @Entity(tableName: 'insulin_records')
 class InsulinEntity {
-  /// Auto-generated primary key assigned by the database (null until saved).
+  /// Auto-generated database id (null until saved).
   @PrimaryKey(autoGenerate: true)
   final int? id;
 
-  /// Type name of the insulin, e.g. "Rapid-acting", "Long-acting".
+  /// Insulin type, e.g. "Rapid-acting".
   final String name;
 
-  /// Number of units injected, e.g. 10 (can be a decimal).
+  /// Units injected, e.g. 10.
   final double dose;
 
-  /// Body site used for the injection, e.g. "Abdomen", "Thigh".
+  /// Injection site, e.g. "Abdomen".
   final String site;
 
-  /// Time of the injection in 24-hour format, e.g. "08:00".
+  /// Injection time in 24-hour format, e.g. "08:00".
   final String time;
 
-  /// Whether a daily reminder notification is scheduled for this
-  /// insulin record. Controlled by the "Reminder Enabled" switch in
-  /// the Add Insulin screen.
+  /// Whether a daily reminder is scheduled for this dose.
   final bool reminderEnabled;
 
-  /// Whether the reminder repeats every day. When false the reminder
-  /// fires only once at the chosen time. Controlled by the
-  /// "Repeat Daily" switch.
+  /// Whether the reminder repeats every day (or fires once).
   final bool repeatDaily;
 
-  /// Milliseconds since epoch when the dose was logged.
-  /// Used to order records and calculate insulin used per day.
+  /// When the dose was logged (ms since epoch).
   final int timestamp;
 
-  /// Optional note attached to the dose.
+  /// Optional note.
   final String notes;
 
   InsulinEntity({

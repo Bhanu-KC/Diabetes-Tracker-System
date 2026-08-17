@@ -4,24 +4,18 @@ import 'firebase_options.dart';
 import 'app.dart';
 import 'services/notification_service.dart';
 
-/// Called once when the application starts.
-///
-/// Waits for Firebase to be ready (using the generated platform options)
-/// and then runs the app. This is an asynchronous function because
-/// `Firebase.initializeApp` returns a Future that must complete first.
+/// Runs when the app starts — sets up Firebase, then opens the app.
 Future<void> main() async {
-  // Ensures the Flutter engine is ready before awaiting Firebase.
+  // Get Flutter ready before using Firebase.
   WidgetsFlutterBinding.ensureInitialized();
-  // Initialize Firebase with the options generated for the current platform.
+  // Start Firebase with the options for this platform.
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // Set up local notifications (timezone + plugin) before the UI loads.
+  // Set up notifications before showing the UI.
   await NotificationService.instance.initializeNotifications();
-  // Start the user interface with the root app widget.
+  // Open the app.
   runApp(const DiabetesApp());
 
-  // After the first frame is drawn, request notification permission
-  // (once, on first launch). The denial message is shown via the root
-  // navigator so it appears on top of the current screen.
+  // After the first frame, ask for notification permission once.
   WidgetsBinding.instance.addPostFrameCallback((_) {
     final context = navigatorKey.currentContext;
     if (context != null) {
