@@ -67,9 +67,9 @@ class NotificationService {
   /// overwrite medication notifications with the same database id.
   static int insulinNotificationId(int recordId) => _insulinIdOffset + recordId;
 
-  // ------------------------------------------------------------------
+  
   // Initialization
-  // ------------------------------------------------------------------
+  
 
   /// Initializes timezones and the notification plugin.
   ///
@@ -192,9 +192,9 @@ class NotificationService {
     );
   }
 
-  // ------------------------------------------------------------------
+  
   // Settings (enable / sound / vibration)
-  // ------------------------------------------------------------------
+  
 
   /// Loads the saved settings from shared_preferences once.
   ///
@@ -280,9 +280,9 @@ class NotificationService {
     }
   }
 
-  // ------------------------------------------------------------------
+  
   // Notification details
-  // ------------------------------------------------------------------
+  
 
   /// Builds the notification details used for every reminder.
   ///
@@ -348,9 +348,9 @@ class NotificationService {
     );
   }
 
-  // ------------------------------------------------------------------
+  
   // Scheduling reminders
-  // ------------------------------------------------------------------
+  
 
   /// Schedules the reminder for one medication.
   ///
@@ -443,9 +443,9 @@ class NotificationService {
     }
   }
 
-  // ------------------------------------------------------------------
+  
   // Cancelling notifications
-  // ------------------------------------------------------------------
+  
 
   /// Cancels one scheduled notification by its notification id.
   ///
@@ -472,9 +472,9 @@ class NotificationService {
     }
   }
 
-  // ------------------------------------------------------------------
+  
   // Instant notifications
-  // ------------------------------------------------------------------
+  
 
   /// Shows an instant notification immediately (no scheduling).
   ///
