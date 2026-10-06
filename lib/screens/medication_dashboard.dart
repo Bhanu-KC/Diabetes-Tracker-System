@@ -100,6 +100,13 @@ class _MedicationDashboardState extends State<MedicationDashboard> {
                         MedicationDetails(medication: medications[i]),
                   ),
                 ),
+                // Marks the medication as taken / not taken.
+                onToggleTaken: () async {
+                  final repo = await MedicationRepository.getInstance();
+                  await repo.update(
+                    medications[i].copyWith(taken: !medications[i].taken),
+                  );
+                },
               ),
             ),
     );
@@ -150,12 +157,14 @@ class _MedicationCard extends StatelessWidget {
   final Color color;
   final IconData icon;
   final VoidCallback onTap;
+  final VoidCallback onToggleTaken;
 
   const _MedicationCard({
     required this.medication,
     required this.color,
     required this.icon,
     required this.onTap,
+    required this.onToggleTaken,
   });
 
   /// Converts "HH:mm" reminder time to 12-hour text.
@@ -238,8 +247,21 @@ class _MedicationCard extends StatelessWidget {
                   ],
                 ),
               ),
-              // Chevron showing the card opens details.
-              const Icon(Icons.chevron_right, color: AppColors.subtitleGrey),
+              // Taken checkbox + chevron on the right.
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Checkbox(
+                    value: medication.taken,
+                    onChanged: (_) => onToggleTaken(),
+                    activeColor: color,
+                  ),
+                  Text(
+                    medication.taken ? 'Taken' : 'Not taken',
+                    style: const TextStyle(fontSize: 10, color: Colors.grey),
+                  ),
+                ],
+              ),
             ],
           ),
         ),

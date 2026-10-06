@@ -27,6 +27,9 @@ class MedicationEntity {
   /// Whether the reminder repeats every day (or fires once).
   final bool repeatDaily;
 
+  /// Whether the user has marked this dose as taken.
+  final bool taken;
+
   /// Course start day (milliseconds since epoch).
   final int startDate;
 
@@ -44,8 +47,28 @@ class MedicationEntity {
     this.reminderTime = '08:00',
     this.reminderEnabled = true,
     this.repeatDaily = true,
+    this.taken = false,
     required this.startDate,
     required this.endDate,
     this.notes = '',
   });
+
+  // Makes a copy of this medication so I can change just the id (or the
+  // taken flag) without touching the rest of it. Used after a new row is
+  // saved in the database, and when the user checks the "taken" box.
+  MedicationEntity copyWith({int? id, bool? taken}) {
+    return MedicationEntity(
+      id: id ?? this.id,
+      name: name,
+      dosage: dosage,
+      frequency: frequency,
+      reminderTime: reminderTime,
+      reminderEnabled: reminderEnabled,
+      repeatDaily: repeatDaily,
+      taken: taken ?? this.taken,
+      startDate: startDate,
+      endDate: endDate,
+      notes: notes,
+    );
+  }
 }

@@ -2,6 +2,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
 import '../theme/app_theme.dart';
@@ -96,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Opens the emergency assistance bottom sheet.
+  // Opens the emergency assistance bottom sheet.
   Future<void> _showEmergencySheet() async {
     final user = AuthService().currentUser;
     String? contactName;
@@ -108,8 +109,10 @@ class _HomeScreenState extends State<HomeScreen> {
         contactName = profile?.emergencyContactName;
         contactNumber = profile?.emergencyContactNumber;
         loaded = true;
-      } catch (_) {
+        // debugPrint('Emergency contact loaded: $contactName');
+      } catch (e) {
         // Still show the sheet if Firestore fails.
+        debugPrint('Could not load emergency contact: $e');
         loaded = true;
       }
     } else {
@@ -155,50 +158,83 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: EdgeInsets.all(24),
                   child: CircularProgressIndicator(),
                 )
-              else if (contactName == null || contactNumber == null)
-                Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    children: [
-                      const Icon(
-                        Icons.contact_emergency_outlined,
-                        size: 40,
-                        color: Colors.grey,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'No emergency contact saved',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Add one from Edit Profile so help is always available',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.subtitleGrey,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                )
-              else
-                // Contact tile with name and phone.
+              else ...[
+                // Call Ambulance button.
                 ListTile(
                   leading: const CircleAvatar(
                     backgroundColor: Color(0xFFFFEBEE),
                     child: Icon(
-                      Icons.contact_emergency,
+                      Icons.local_hospital,
                       color: Color(0xFFE53935),
                     ),
                   ),
-                  title: Text(
-                    contactName,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  title: const Text(
+                    'Call Ambulance',
+                    style: TextStyle(fontWeight: FontWeight.w600),
                   ),
-                  subtitle: Text('Call $contactNumber using your phone dialer'),
+                  subtitle: const Text('Dial 102'),
+                  trailing: const Icon(Icons.phone, color: Color(0xFFE53935)),
+                  onTap: () async {
+                    final uri = Uri.parse('tel:102');
+                    if (await canLaunchUrl(uri)) {
+                      await launchUrl(uri);
+                    }
+                  },
                 ),
+                const Divider(height: 1),
+                // Emergency contact section.
+                if (contactName != null && contactNumber != null)
+                  ListTile(
+                    leading: const CircleAvatar(
+                      backgroundColor: Color(0xFFFFEBEE),
+                      child: Icon(
+                        Icons.contact_emergency,
+                        color: Color(0xFFE53935),
+                      ),
+                    ),
+                    title: Text(
+                      contactName,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    subtitle: Text('Dial $contactNumber'),
+                    trailing: const Icon(Icons.phone, color: Color(0xFFE53935)),
+                    onTap: () async {
+                      final uri = Uri.parse('tel:$contactNumber');
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(uri);
+                      }
+                    },
+                  )
+                else
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        const Icon(
+                          Icons.contact_emergency_outlined,
+                          size: 40,
+                          color: Colors.grey,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'No emergency contact saved',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Add one from Edit Profile',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(color: AppColors.subtitleGrey),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
               const Divider(height: 1),
               const SizedBox(height: 8),
               // Closes the sheet.

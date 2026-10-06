@@ -36,4 +36,18 @@ class MealEntity {
     required this.timestamp,
     this.notes = '',
   });
+
+  // Makes a copy of this meal so I can change just the id without
+  // touching the rest of it (used after a new row is saved in the database).
+  MealEntity copyWith({int? id}) {
+    return MealEntity(
+      id: id ?? this.id,
+      name: name,
+      mealType: mealType,
+      carbs: carbs,
+      calories: calories,
+      timestamp: timestamp,
+      notes: notes,
+    );
+  }
 }

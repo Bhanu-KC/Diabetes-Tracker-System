@@ -6,34 +6,34 @@ import 'package:flutter/material.dart';
 /// The app's colour palette — all colours as constants.
 class AppColors {
   /// Main brand blue (app bar, buttons).
-  static const Color primaryBlue = Color(0xFF1565C0);
+  static const Color primaryBlue = Color.fromARGB(255, 4, 75, 156);
 
   /// Accent green (FABs, success).
-  static const Color softGreen = Color(0xFF66BB6A);
+  static const Color softGreen = Color.fromARGB(255, 56, 131, 60);
 
   /// Light green background for healthy status cards.
-  static const Color lightGreen = Color(0xFFE8F5E9);
+  static const Color lightGreen = Color.fromARGB(255, 230, 255, 232);
 
   /// Light blue background for info cards.
-  static const Color lightBlue = Color(0xFFE3F2FD);
+  static const Color lightBlue = Color.fromARGB(255, 215, 239, 255);
 
   /// White for card backgrounds and surfaces.
-  static const Color white = Colors.white;
+  static const Color white = Color.fromARGB(255, 241, 241, 241);
 
   /// Light grey screen background.
-  static const Color backgroundGrey = Color(0xFFF5F7FA);
+  static const Color backgroundGrey = Color.fromARGB(255, 208, 209, 211);
 
   /// Dark grey for main text.
-  static const Color darkText = Color(0xFF212121);
+  static const Color darkText = Color.fromARGB(255, 39, 39, 39);
 
   /// Medium grey for secondary text.
-  static const Color subtitleGrey = Color(0xFF757575);
+  static const Color subtitleGrey = Color.fromARGB(255, 117, 117, 117);
 
   /// Red for errors and delete actions.
-  static const Color errorRed = Color(0xFFE53935);
+  static const Color errorRed = Color.fromARGB(255, 255, 52, 48);
 
   /// Amber for high blood sugar warnings.
-  static const Color warningAmber = Color(0xFFFFA726);
+  static const Color warningAmber = Color.fromARGB(255, 250, 163, 33);
 }
 
 /// Builds the app-wide light theme.

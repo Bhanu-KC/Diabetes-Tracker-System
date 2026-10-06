@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../services/data_sync_service.dart';
 import '../theme/app_theme.dart';
 
 /// Lets the user sign in with email and password.
@@ -47,11 +48,12 @@ class _LoginScreenState extends State<LoginScreen> {
         password: _passwordController.text,
       );
       if (!mounted) return;
+      // Pull any missing records from the cloud onto this phone.
+      DataSyncService.restoreAll();
       // Replace login so back can't return to it.
       Navigator.pushReplacementNamed(context, '/home');
     } catch (e) {
       if (!mounted) return;
-      // TODO: maybe log this somewhere better later
       debugPrint('Login error: $e');
       // Show a friendly error message.
       ScaffoldMessenger.of(context).showSnackBar(

@@ -86,7 +86,7 @@ class _$AppDatabase extends AppDatabase {
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 5,
+      version: 6,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -106,9 +106,9 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `meal_records` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `mealType` TEXT NOT NULL, `carbs` REAL, `calories` REAL, `timestamp` INTEGER NOT NULL, `notes` TEXT NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `medication_records` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `dosage` TEXT NOT NULL, `frequency` TEXT NOT NULL, `reminderTime` TEXT NOT NULL, `reminderEnabled` INTEGER NOT NULL, `repeatDaily` INTEGER NOT NULL, `startDate` INTEGER NOT NULL, `endDate` INTEGER NOT NULL, `notes` TEXT NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `medication_records` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `dosage` TEXT NOT NULL, `frequency` TEXT NOT NULL, `reminderTime` TEXT NOT NULL, `reminderEnabled` INTEGER NOT NULL, `repeatDaily` INTEGER NOT NULL, `taken` INTEGER NOT NULL, `startDate` INTEGER NOT NULL, `endDate` INTEGER NOT NULL, `notes` TEXT NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `insulin_records` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `dose` REAL NOT NULL, `site` TEXT NOT NULL, `time` TEXT NOT NULL, `reminderEnabled` INTEGER NOT NULL, `repeatDaily` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `notes` TEXT NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `insulin_records` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `dose` REAL NOT NULL, `site` TEXT NOT NULL, `time` TEXT NOT NULL, `reminderEnabled` INTEGER NOT NULL, `repeatDaily` INTEGER NOT NULL, `taken` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `notes` TEXT NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -395,6 +395,7 @@ class _$MedicationDao extends MedicationDao {
                   'reminderTime': item.reminderTime,
                   'reminderEnabled': item.reminderEnabled ? 1 : 0,
                   'repeatDaily': item.repeatDaily ? 1 : 0,
+                  'taken': item.taken ? 1 : 0,
                   'startDate': item.startDate,
                   'endDate': item.endDate,
                   'notes': item.notes
@@ -412,6 +413,7 @@ class _$MedicationDao extends MedicationDao {
                   'reminderTime': item.reminderTime,
                   'reminderEnabled': item.reminderEnabled ? 1 : 0,
                   'repeatDaily': item.repeatDaily ? 1 : 0,
+                  'taken': item.taken ? 1 : 0,
                   'startDate': item.startDate,
                   'endDate': item.endDate,
                   'notes': item.notes
@@ -429,6 +431,7 @@ class _$MedicationDao extends MedicationDao {
                   'reminderTime': item.reminderTime,
                   'reminderEnabled': item.reminderEnabled ? 1 : 0,
                   'repeatDaily': item.repeatDaily ? 1 : 0,
+                  'taken': item.taken ? 1 : 0,
                   'startDate': item.startDate,
                   'endDate': item.endDate,
                   'notes': item.notes
@@ -459,6 +462,7 @@ class _$MedicationDao extends MedicationDao {
             reminderTime: row['reminderTime'] as String,
             reminderEnabled: (row['reminderEnabled'] as int) != 0,
             repeatDaily: (row['repeatDaily'] as int) != 0,
+            taken: (row['taken'] as int) != 0,
             startDate: row['startDate'] as int,
             endDate: row['endDate'] as int,
             notes: row['notes'] as String));
@@ -476,6 +480,7 @@ class _$MedicationDao extends MedicationDao {
             reminderTime: row['reminderTime'] as String,
             reminderEnabled: (row['reminderEnabled'] as int) != 0,
             repeatDaily: (row['repeatDaily'] as int) != 0,
+            taken: (row['taken'] as int) != 0,
             startDate: row['startDate'] as int,
             endDate: row['endDate'] as int,
             notes: row['notes'] as String),
@@ -494,6 +499,7 @@ class _$MedicationDao extends MedicationDao {
             reminderTime: row['reminderTime'] as String,
             reminderEnabled: (row['reminderEnabled'] as int) != 0,
             repeatDaily: (row['repeatDaily'] as int) != 0,
+            taken: (row['taken'] as int) != 0,
             startDate: row['startDate'] as int,
             endDate: row['endDate'] as int,
             notes: row['notes'] as String),
@@ -534,6 +540,7 @@ class _$InsulinDao extends InsulinDao {
                   'time': item.time,
                   'reminderEnabled': item.reminderEnabled ? 1 : 0,
                   'repeatDaily': item.repeatDaily ? 1 : 0,
+                  'taken': item.taken ? 1 : 0,
                   'timestamp': item.timestamp,
                   'notes': item.notes
                 },
@@ -550,6 +557,7 @@ class _$InsulinDao extends InsulinDao {
                   'time': item.time,
                   'reminderEnabled': item.reminderEnabled ? 1 : 0,
                   'repeatDaily': item.repeatDaily ? 1 : 0,
+                  'taken': item.taken ? 1 : 0,
                   'timestamp': item.timestamp,
                   'notes': item.notes
                 },
@@ -566,6 +574,7 @@ class _$InsulinDao extends InsulinDao {
                   'time': item.time,
                   'reminderEnabled': item.reminderEnabled ? 1 : 0,
                   'repeatDaily': item.repeatDaily ? 1 : 0,
+                  'taken': item.taken ? 1 : 0,
                   'timestamp': item.timestamp,
                   'notes': item.notes
                 },
@@ -595,6 +604,7 @@ class _$InsulinDao extends InsulinDao {
             time: row['time'] as String,
             reminderEnabled: (row['reminderEnabled'] as int) != 0,
             repeatDaily: (row['repeatDaily'] as int) != 0,
+            taken: (row['taken'] as int) != 0,
             timestamp: row['timestamp'] as int,
             notes: row['notes'] as String));
   }
@@ -611,6 +621,7 @@ class _$InsulinDao extends InsulinDao {
             time: row['time'] as String,
             reminderEnabled: (row['reminderEnabled'] as int) != 0,
             repeatDaily: (row['repeatDaily'] as int) != 0,
+            taken: (row['taken'] as int) != 0,
             timestamp: row['timestamp'] as int,
             notes: row['notes'] as String),
         queryableName: 'insulin_records',
@@ -628,6 +639,7 @@ class _$InsulinDao extends InsulinDao {
             time: row['time'] as String,
             reminderEnabled: (row['reminderEnabled'] as int) != 0,
             repeatDaily: (row['repeatDaily'] as int) != 0,
+            taken: (row['taken'] as int) != 0,
             timestamp: row['timestamp'] as int,
             notes: row['notes'] as String),
         arguments: [id]);

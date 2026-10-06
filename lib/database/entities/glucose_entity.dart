@@ -28,4 +28,16 @@ class GlucoseEntity {
     this.notes = '',
     required this.timestamp,
   });
+
+  // Makes a copy of this reading so I can change just the id without
+  // touching the rest of it (used after a new row is saved in the database).
+  GlucoseEntity copyWith({int? id}) {
+    return GlucoseEntity(
+      id: id ?? this.id,
+      level: level,
+      mealContext: mealContext,
+      notes: notes,
+      timestamp: timestamp,
+    );
+  }
 }

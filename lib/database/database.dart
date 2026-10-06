@@ -70,9 +70,21 @@ final _migration4To5 = Migration(4, 5, (sqflite.Database db) async {
   );
 });
 
+/// Migration 5 to 6: adds the taken checkbox to medication and insulin.
+final _migration5To6 = Migration(5, 6, (sqflite.Database db) async {
+  await db.execute(
+    "ALTER TABLE `medication_records`"
+    " ADD COLUMN `taken` INTEGER NOT NULL DEFAULT 0",
+  );
+  await db.execute(
+    "ALTER TABLE `insulin_records`"
+    " ADD COLUMN `taken` INTEGER NOT NULL DEFAULT 0",
+  );
+});
+
 /// The app's database. Declares the four tables and their DAOs.
 @Database(
-  version: 5,
+  version: 6,
   entities: [GlucoseEntity, MealEntity, MedicationEntity, InsulinEntity],
 )
 abstract class AppDatabase extends FloorDatabase {
@@ -97,7 +109,8 @@ abstract class AppDatabase extends FloorDatabase {
           _migration2To3,
           _migration3To4,
           _migration4To5,
+          _migration5To6,
         ])
-        .build();
+        .build(); 
   }
 }

@@ -195,6 +195,12 @@ class _InsulinScreenState extends State<InsulinScreen> {
                     data: filtered[i],
                     onTap: () => _openEdit(filtered[i]),
                     onLongPress: () => _confirmDelete(filtered[i]),
+                    onToggleTaken: () async {
+                      final repo = await InsulinRepository.getInstance();
+                      await repo.update(
+                        filtered[i].copyWith(taken: !filtered[i].taken),
+                      );
+                    },
                   ),
                 ),
         ),
@@ -279,10 +285,12 @@ class _InsulinCard extends StatelessWidget {
   final InsulinEntity data;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
+  final VoidCallback onToggleTaken;
   const _InsulinCard({
     required this.data,
     required this.onTap,
     required this.onLongPress,
+    required this.onToggleTaken,
   });
 
   @override
@@ -351,10 +359,20 @@ class _InsulinCard extends StatelessWidget {
                   ],
                 ),
               ),
-              // Check mark showing the dose was logged.
-              Icon(
-                Icons.check_circle_outline,
-                color: AppColors.softGreen.withValues(alpha: 0.6),
+              // Taken checkbox on the right.
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Checkbox(
+                    value: data.taken,
+                    onChanged: (_) => onToggleTaken(),
+                    activeColor: AppColors.softGreen,
+                  ),
+                  Text(
+                    data.taken ? 'Taken' : 'Not taken',
+                    style: const TextStyle(fontSize: 10, color: Colors.grey),
+                  ),
+                ],
               ),
             ],
           ),

@@ -219,7 +219,7 @@ class _AddGlucoseScreenState extends State<AddGlucoseScreen> {
               const SizedBox(height: 18),
               // Reading type as filter chips.
               Text('Reading Type', style: theme.textTheme.titleLarge),
-              const SizedBox(height: 10),
+              const SizedBox(height: 10), 
               Wrap(
                 spacing: 10,
                 runSpacing: 8,
